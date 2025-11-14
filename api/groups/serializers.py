@@ -6,6 +6,7 @@ from rest_framework import serializers
 from api.core.utils import DotsValidationError
 
 from api.groups.models import Group
+
 from api.users.serializers import UserSerializer
 
 
