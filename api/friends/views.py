@@ -32,16 +32,12 @@ class FriendViewSet(DotsModelViewSet):
     def not_friend(self, request):
         user = request.user
 
-        friend_qs = Friend.objects.filter(created_by=user, member_id=OuterRef("id"))
-        users = User.objects.exclude(Q(id=user.id) | Q(is_staff=True) | Q(is_superuser=True)).order_by("-id")
-        users = users.annotate(is_friend=Exists(friend_qs))
+        # friend_qs = Friend.objects.filter(created_by=user, member_id=OuterRef("id"))
+        friend_ids = Friend.objects.filter(created_by=user).values_list("member_id", flat=True)
+        users = User.objects.exclude(Q(id=user.id) | Q(id__in=friend_ids) | Q(is_staff=True) | Q(is_superuser=True)).order_by("-id")
+        # users = users.annotate(is_friend=Exists(friend_qs))
 
-        email = request.query_params.get("member__email")
         search = request.query_params.get("search")
-
-        if email:
-            users = users.filter(email=email)
-
         if search:
             users = users.filter(Q(fullname__icontains=search) | Q(email__icontains=search))
 
