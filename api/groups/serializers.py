@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Sum
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
@@ -9,7 +9,7 @@ from api.core.utils import DotsValidationError
 from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
 
-from api.users.serializers import UserSerializer
+from api.users.serializers import ShortUserSerializer
 
 
 User = get_user_model()
@@ -17,13 +17,17 @@ User = get_user_model()
 
 class GroupSerializer(serializers.ModelSerializer):
     members_count = serializers.SerializerMethodField()
+    total_expenses = serializers.SerializerMethodField()
     
     class Meta:
         model = Group
-        fields = ["id", "created_by", "name", "description", "thumbnail", "members_count"]
+        fields = ["id", "created_by", "name", "description", "thumbnail", "members_count", "total_expenses"]
     
     def get_members_count(self, obj):
-        return obj.members.exclude(member=obj.created_by).count()
+        return getattr(obj, "members_count_annotated", 0)
+
+    def get_total_expenses(self, obj):
+        return getattr(obj, "total_expenses_annotated", 0)
 
 
 class GroupCreateSerializer(serializers.ModelSerializer):
@@ -43,39 +47,39 @@ class GroupCreateSerializer(serializers.ModelSerializer):
 
 
 class GroupMemberSerializer(serializers.ModelSerializer):
-    member = UserSerializer(read_only=True)
+    user = ShortUserSerializer(read_only=True)
     
     class Meta:
         model = GroupMember
-        fields = ["id", "group", "member", "created_at", "updated_at"]
+        fields = ["id", "group", "user", "created_at", "updated_at"]
 
 
 class GroupMemberCreateSerializer(serializers.ModelSerializer):
     group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=True)
-    member = serializers.PrimaryKeyRelatedField(queryset=User.objects.all().exclude(is_staff=True, is_superuser=True), required=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all().exclude(is_staff=True, is_superuser=True), required=True)
 
     class Meta:
         model = GroupMember
-        fields = ["group", "member"]
+        fields = ["group", "user"]
         validators = [
-            UniqueTogetherValidator(queryset=GroupMember.objects.all(), fields=['group', 'member'], message="User is already a member of this group.")
+            UniqueTogetherValidator(queryset=GroupMember.objects.all(), fields=['group', 'user'], message="User is already a member of this group.")
         ]
     
     def validate(self, attrs):
         request = self.context["request"]
         group = attrs["group"]
-        member = attrs["member"]
+        user = attrs["user"]
         
         if group.created_by != request.user:
             raise DotsValidationError({"error": "Only group creator can add members."})
         
-        if GroupMember.objects.filter(group=group, member=member).exists():
+        if GroupMember.objects.filter(group=group, user=user).exists():
             raise DotsValidationError({"error": "User is already a member of this group."})
         
-        if member == group.created_by:
+        if user == group.created_by:
             raise DotsValidationError({"error": "Group creator is already a member."})
         
-        if not Friend.objects.filter(created_by=request.user, member=member).exists():
+        if not Friend.objects.filter(created_by=request.user, member=user).exists():
             raise DotsValidationError({"error": "You can only add friends as group members."})
         
         return attrs

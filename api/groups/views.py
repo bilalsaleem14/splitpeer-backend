@@ -1,3 +1,4 @@
+from django.db.models import Sum, Count
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
@@ -19,7 +20,7 @@ User = get_user_model()
 class GroupViewSet(DotsModelViewSet):
     serializer_class = GroupSerializer
     serializer_create_class = GroupCreateSerializer
-    queryset = Group.objects.all().select_related("created_by").order_by("-id")
+    queryset = Group.objects.all().select_related("created_by").annotate(members_count_annotated=Count("members", distinct=True), total_expenses_annotated=Sum("group_expenses__amount")).order_by("-id")
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -32,7 +33,7 @@ class GroupViewSet(DotsModelViewSet):
 class GroupMemberViewSet(DotsModelViewSet):
     serializer_class = GroupMemberSerializer
     serializer_create_class = GroupMemberCreateSerializer
-    queryset = GroupMember.objects.all().select_related("member", "group").order_by("-id")
+    queryset = GroupMember.objects.all().select_related("user", "group").order_by("-id")
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
@@ -41,7 +42,7 @@ class GroupMemberViewSet(DotsModelViewSet):
     
     def get_object(self):
         if self.request.method == "DELETE":
-            return get_object_or_404(GroupMember.objects.select_related("member", "group"), pk=self.kwargs["pk"])
+            return get_object_or_404(GroupMember.objects.select_related("user", "group"), pk=self.kwargs["pk"])
         return super().get_object()
     
     def get_group(self):
@@ -58,7 +59,7 @@ class GroupMemberViewSet(DotsModelViewSet):
         if group.created_by != request.user:
             raise DotsValidationError({"error": "Only group creator can remove members."})
         
-        if instance.member == group.created_by:
+        if instance.user == group.created_by:
             raise DotsValidationError({"error": "Cannot remove group creator from the group."})
         
         instance.delete()

@@ -18,3 +18,10 @@ class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["profile_picture"]
+
+
+class ShortUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ["id", "email", "fullname", "profile_picture"]

@@ -62,7 +62,7 @@ THIRD_PARTY_APPS = [
     "api.friends",
     "api.groups",
     "api.categories",
-    # "api.expenses"
+    "api.expenses"
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS

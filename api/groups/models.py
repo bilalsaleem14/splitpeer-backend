@@ -21,16 +21,16 @@ class Group(BaseModel):
 
 class GroupMember(BaseModel):
     group = models.ForeignKey(Group, related_name="members", on_delete=models.CASCADE)
-    member = models.ForeignKey(User, related_name="group_memberships", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="group_memberships", on_delete=models.CASCADE)
     
     class Meta:
-        unique_together = ("group", "member")
+        unique_together = ("group", "user")
     
     def __str__(self):
-        return f"{self.member} in {self.group.name}"
+        return f"{self.user} in {self.group.name}"
 
 
 @receiver(post_save, sender=Group)
 def add_creator_as_member(sender, instance, created, **kwargs):
     if created:
-        GroupMember.objects.create(group=instance, member=instance.created_by)
+        GroupMember.objects.create(group=instance, user=instance.created_by)
