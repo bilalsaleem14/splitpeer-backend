@@ -74,7 +74,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True, required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[PasswordValidator.validate_all])
     verification_token = serializers.CharField(required=True, write_only=True)
-    profile_picture = serializers.ImageField(required=True)
 
     class Meta:
         model = User
