@@ -1,6 +1,8 @@
 import re
 import inspect
 
+from django.conf import settings
+
 from rest_framework import serializers
 
 
@@ -70,3 +72,12 @@ def validate_length(text):
     text = re.sub(r"\s+", "", text)
     if len(text) > 75:
         raise serializers.ValidationError("Max len is 75")
+
+
+def validate_image():
+    max_size_bytes = settings.MAX_IMAGE_SIZE * 1024 * 1024
+
+    def validator(file):
+        if file.size > max_size_bytes:
+            raise serializers.ValidationError(f"Image size exceeds the {settings.MAX_IMAGE_SIZE}MB limit. Please upload a smaller file.")
+    return validator

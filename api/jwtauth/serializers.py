@@ -12,7 +12,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from api.core.otp_helper import get_random_otp, send_confirmation_code, verify_otp
 from api.core.utils import DotsValidationError
-from api.core.validators import PasswordValidator
+from api.core.validators import PasswordValidator, validate_image
 from api.core.profile_management import UserProfileOperations
 
 from api.jwtauth.models import OTP
@@ -74,6 +74,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True, required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[PasswordValidator.validate_all])
     verification_token = serializers.CharField(required=True, write_only=True)
+    profile_picture = serializers.ImageField(validators=[validate_image()])
 
     class Meta:
         model = User
@@ -108,6 +109,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(validators=[validate_image()])
 
     class Meta:
         model = User

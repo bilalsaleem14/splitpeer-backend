@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q, F
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
@@ -20,7 +20,7 @@ User = get_user_model()
 class GroupViewSet(DotsModelViewSet):
     serializer_class = GroupSerializer
     serializer_create_class = GroupCreateSerializer
-    queryset = Group.objects.all().select_related("created_by").annotate(members_count_annotated=Count("members", distinct=True), total_expenses_annotated=Sum("group_expenses__amount")).order_by("-id")
+    queryset = Group.objects.all().select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Sum("group_expenses__amount")).order_by("-id")
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

@@ -174,3 +174,5 @@ MEDIA_ROOT = env.str("MEDIA_ROOT")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "users.User"
+
+MAX_IMAGE_SIZE = env.int("MAX_IMAGE_SIZE", 5)
