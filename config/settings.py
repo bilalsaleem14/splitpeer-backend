@@ -61,6 +61,8 @@ THIRD_PARTY_APPS = [
     "api.jwtauth",
     "api.friends",
     "api.groups",
+    "api.categories",
+    # "api.expenses"
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS
@@ -134,8 +136,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=int(os.getenv("ACCESS_TOKEN_LIFE_HOURS"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(os.getenv("REFRESH_TOKEN_LIFE_DAYS"))),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=env.int("ACCESS_TOKEN_LIFE_HOURS")),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("REFRESH_TOKEN_LIFE_DAYS")),
 }
 
 SWAGGER_SETTINGS = {

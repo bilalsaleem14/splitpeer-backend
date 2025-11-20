@@ -19,18 +19,18 @@ class Group(BaseModel):
         return f"{self.name} -> {self.created_by}"
 
 
-# class GroupMember(BaseModel):
-#     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="members")
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="group_memberships")
+class GroupMember(BaseModel):
+    group = models.ForeignKey(Group, related_name="members", on_delete=models.CASCADE)
+    member = models.ForeignKey(User, related_name="group_memberships", on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ("group", "member")
+    
+    def __str__(self):
+        return f"{self.member} in {self.group.name}"
 
-#     class Meta:
-#         unique_together = ('group', 'user')
 
-#     def __str__(self):
-#         return f"{self.user} in {self.group}"
-
-
-# @receiver(post_save, sender=Group)
-# def add_creator_as_member(sender, instance, created, **kwargs):
-#     if created:
-#         GroupMember.objects.get_or_create(group=instance, user=instance.created_by, defaults={})
+@receiver(post_save, sender=Group)
+def add_creator_as_member(sender, instance, created, **kwargs):
+    if created:
+        GroupMember.objects.create(group=instance, member=instance.created_by)
