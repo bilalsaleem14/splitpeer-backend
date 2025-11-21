@@ -2,11 +2,11 @@ from django.db.models import Sum, Count, Q, F, Value, DecimalField
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
-from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from api.core.mixin import DotsModelViewSet
 

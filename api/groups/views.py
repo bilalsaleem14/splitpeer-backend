@@ -4,17 +4,20 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from api.core.filters import GroupMemberFilter
+from api.core.filters import GroupMemberFilter, UserFilter
 from api.core.mixin import DotsModelViewSet
 from api.core.utils import DotsValidationError
 
+from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
 
+from api.users.serializers import ShortUserSerializer
 from api.groups.serializers import GroupSerializer, GroupCreateSerializer, GroupMemberSerializer, GroupMemberCreateSerializer
 
 
@@ -29,6 +32,21 @@ class GroupViewSet(DotsModelViewSet):
 
     def get_queryset(self):
         return super().get_queryset().filter(created_by=self.request.user)
+    
+    @action(detail=True, methods=["get"], url_path="non-member-friends", serializer_class=ShortUserSerializer)
+    def non_member_friends(self, request, pk=None):
+        group = self.get_object()
+        friends = Friend.objects.filter(created_by=request.user).values_list('member_id', flat=True)
+        group_member_ids = group.members.values_list('user_id', flat=True)
+        non_member_friend_ids = set(friends) - set(group_member_ids)
+        non_member_friends = User.objects.filter(id__in=non_member_friend_ids)
+        
+        filterset = UserFilter(request.GET, queryset=non_member_friends)
+        filtered_queryset = filterset.qs
+
+        page = self.paginate_queryset(filtered_queryset)
+        serializer = self.get_serializer(page, many=True, context={"request": request})
+        return self.get_paginated_response(serializer.data)
 
 
 class GroupMemberViewSet(DotsModelViewSet):

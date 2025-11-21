@@ -43,7 +43,7 @@ class ExpenseSplit(BaseModel):
         unique_together = ("expense", "participant")
     
     def __str__(self):
-        return f"{self.expense.title} - {self.participant.member.get_full_name()} ({self.get_display_value()})"
+        return f"{self.expense.title} - {self.participant.user.get_full_name()} ({self.get_display_value()})"
     
     def get_display_value(self):
         if self.expense.split_type == Expense.SplitType.PERCENTAGE and self.percentage:
