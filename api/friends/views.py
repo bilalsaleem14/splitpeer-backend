@@ -1,4 +1,5 @@
-from django.db.models import Q, Exists, OuterRef
+from django.db.models import Sum, Count, Q, F, Value, DecimalField
+from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,8 +11,10 @@ from rest_framework.decorators import action
 from api.core.mixin import DotsModelViewSet
 
 from api.friends.models import Friend
+from api.groups.models import Group
 
 from api.friends.serializers import FriendSerializer, FriendCreateSerializer, UserWithFriendStatusSerializer
+from api.groups.serializers import GroupSerializer
 
 
 User = get_user_model()
@@ -32,15 +35,23 @@ class FriendViewSet(DotsModelViewSet):
     def not_friend(self, request):
         user = request.user
 
-        # friend_qs = Friend.objects.filter(created_by=user, member_id=OuterRef("id"))
         friend_ids = Friend.objects.filter(created_by=user).values_list("member_id", flat=True)
         users = User.objects.exclude(Q(id=user.id) | Q(id__in=friend_ids) | Q(is_staff=True) | Q(is_superuser=True)).order_by("-id")
-        # users = users.annotate(is_friend=Exists(friend_qs))
 
         search = request.query_params.get("search")
         if search:
             users = users.filter(Q(fullname__icontains=search) | Q(email__icontains=search))
 
         page = self.paginate_queryset(users)
+        serializer = self.get_serializer(page, many=True, context={"request": request})
+        return self.get_paginated_response(serializer.data)
+    
+    @action(detail=True, methods=["GET"], url_path="groups", serializer_class=GroupSerializer)
+    def common_groups(self, request, pk=None):
+        friend = self.get_object()
+        user = request.user
+        queryset = Group.objects.filter(members__user=user).filter(members__user=friend.member).distinct().select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Sum("group_expenses__amount"), Value(0.0, output_field=DecimalField()))).order_by("-id")
+
+        page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)

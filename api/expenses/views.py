@@ -1,7 +1,9 @@
 from rest_framework.permissions import IsAuthenticated
 
-from api.core.mixin import DotsModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 
+from api.core.filters import ExpenseFilter
+from api.core.mixin import DotsModelViewSet
 from api.core.permissions import IsOwner
 
 from api.groups.models import GroupMember
@@ -15,21 +17,15 @@ class ExpenseViewSet(DotsModelViewSet):
     serializer_create_class = ExpenseCreateSerializer
     queryset = Expense.objects.all().select_related("group", "paid_by__user", "category", "created_by").prefetch_related("expense_splits__participant__user").order_by("-created_at")
     permission_classes = [IsAuthenticated, IsOwner]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ExpenseFilter
     action_serializers = {
         "partial_update": ExpenseUpdateSerializer,
     }
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        
-        user_groups = GroupMember.objects.filter(user=self.request.user).values_list("group_id", flat=True)
-        queryset = queryset.filter(group__id__in=user_groups)
-        
-        group_id = self.request.query_params.get("group", None)
-        if group_id:
-            queryset = queryset.filter(group__id=group_id)
-        
-        return queryset
+        return queryset.filter(group__members__user=self.request.user).distinct()
     
     def get_serializer_create_class(self):
         if self.action in self.action_serializers:

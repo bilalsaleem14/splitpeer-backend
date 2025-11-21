@@ -29,7 +29,7 @@ class GroupSerializer(serializers.ModelSerializer):
         return getattr(obj, "members_count_annotated", 0)
 
     def get_total_expenses(self, obj):
-        return getattr(obj, "total_expenses_annotated", 0)
+        return getattr(obj, "total_expenses_annotated", 0.0)
     
     def get_member_profile_pictures(self, obj):
         members = obj.members.all()[:5]
