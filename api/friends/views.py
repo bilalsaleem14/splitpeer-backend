@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery
+from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery, Exists
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
@@ -11,7 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from api.core.mixin import DotsModelViewSet
 
 from api.friends.models import Friend
-from api.groups.models import Group
+from api.groups.models import Group, GroupMember
 from api.expenses.models import Expense
 
 from api.friends.serializers import FriendSerializer, FriendCreateSerializer, UserWithFriendStatusSerializer
@@ -50,9 +50,11 @@ class FriendViewSet(DotsModelViewSet):
     @action(detail=True, methods=["GET"], url_path="groups", serializer_class=GroupSerializer)
     def common_groups(self, request, pk=None):
         friend = self.get_object()
-        user = request.user
+        
+        user_member_exists = GroupMember.objects.filter(group=OuterRef("pk"), user=request.user)
+        friend_member_exists = GroupMember.objects.filter(group=OuterRef("pk"), user=friend.member)
         expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
-        queryset = Group.objects.filter(members__user=user).filter(members__user=friend.member).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
+        queryset = queryset = Group.objects.annotate(is_user=Exists(user_member_exists), is_friend=Exists(friend_member_exists)).filter(is_user=True, is_friend=True).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
 
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})
