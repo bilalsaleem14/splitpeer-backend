@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count, Q, F, Value, DecimalField
+from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
@@ -12,6 +12,7 @@ from api.core.mixin import DotsModelViewSet
 
 from api.friends.models import Friend
 from api.groups.models import Group
+from api.expenses.models import Expense
 
 from api.friends.serializers import FriendSerializer, FriendCreateSerializer, UserWithFriendStatusSerializer
 from api.groups.serializers import GroupSerializer
@@ -50,7 +51,8 @@ class FriendViewSet(DotsModelViewSet):
     def common_groups(self, request, pk=None):
         friend = self.get_object()
         user = request.user
-        queryset = Group.objects.filter(members__user=user).filter(members__user=friend.member).distinct().select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Sum("group_expenses__amount"), Value(0.0, output_field=DecimalField()))).order_by("-id")
+        expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
+        queryset = Group.objects.filter(members__user=user).filter(members__user=friend.member).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
 
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})

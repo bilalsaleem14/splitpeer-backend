@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count, Q, F, Value, DecimalField
+from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
@@ -16,6 +16,7 @@ from api.core.utils import DotsValidationError
 
 from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
+from api.expenses.models import Expense
 
 from api.users.serializers import ShortUserSerializer
 from api.groups.serializers import GroupSerializer, GroupCreateSerializer, GroupMemberSerializer, GroupMemberCreateSerializer
@@ -27,11 +28,12 @@ User = get_user_model()
 class GroupViewSet(DotsModelViewSet):
     serializer_class = GroupSerializer
     serializer_create_class = GroupCreateSerializer
-    queryset = Group.objects.all().select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Sum("group_expenses__amount"), Value(0.0, output_field=DecimalField()))).order_by("-id")
+    queryset = Group.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
+        expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
+        return super().get_queryset().filter(created_by=self.request.user).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
     
     @action(detail=True, methods=["get"], url_path="non-member-friends", serializer_class=ShortUserSerializer)
     def non_member_friends(self, request, pk=None):
