@@ -51,3 +51,13 @@ class ExpenseSplit(BaseModel):
         elif self.amount:
             return f"${self.amount}"
         return "N/A"
+
+
+class ExpenseItem(BaseModel):
+    expense = models.ForeignKey(Expense, related_name="items", on_delete=models.CASCADE)
+    title = models.CharField(max_length=CharFieldSizes.SMALL)
+    amount = models.DecimalField(max_digits=9, decimal_places=2, validators=[MinValueValidator(Decimal("0.50"))])
+    assignee = models.ForeignKey(GroupMember, related_name="expense_items", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.title} - {self.assignee.user.get_full_name()} (${self.amount})"
