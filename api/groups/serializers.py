@@ -91,3 +91,45 @@ class GroupMemberCreateSerializer(serializers.ModelSerializer):
             raise DotsValidationError({"error": "You can only add friends as group members."})
         
         return attrs
+
+
+class GroupMemberBulkCreateSerializer(serializers.Serializer):
+    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=True)
+    user = serializers.ListField(child=serializers.PrimaryKeyRelatedField(queryset=User.objects.all().exclude(is_staff=True, is_superuser=True)), allow_empty=False)
+
+    def validate(self, attrs):
+        request = self.context["request"]
+        group = attrs["group"]
+        user_ids = [u.id for u in attrs["user"]]
+
+        if group.created_by != request.user:
+            raise DotsValidationError({"error": "Only group creator can add members."})
+
+        existing_member_ids = set(GroupMember.objects.filter(group=group, user_id__in=user_ids).values_list("user_id", flat=True))
+        friend_ids = set(Friend.objects.filter(created_by=request.user, member_id__in=user_ids).values_list("member_id", flat=True))
+
+        errors = {}
+        valid_user_ids = []
+
+        for uid in user_ids:
+            if uid == group.created_by.id:
+                raise DotsValidationError({"error": "Group creator is already a member."})
+            elif uid in existing_member_ids:
+                raise DotsValidationError({"error": f"User {uid} is already a member of this group."})
+            elif uid not in friend_ids:
+                raise DotsValidationError({"error": f"You can only add friends as group members. User {uid} is not a friend."})
+            else:
+                valid_user_ids.append(uid)
+
+        if errors:
+            raise DotsValidationError(errors)
+
+        attrs["valid_user_ids"] = valid_user_ids
+        return attrs
+
+    def create(self, validated_data):
+        group = validated_data["group"]
+        user_ids = validated_data["valid_user_ids"]
+        instances = [GroupMember(group=group, user_id=uid) for uid in user_ids]
+        return GroupMember.objects.bulk_create(instances)
+

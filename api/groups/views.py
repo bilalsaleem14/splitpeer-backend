@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
@@ -19,7 +20,7 @@ from api.groups.models import Group, GroupMember
 from api.expenses.models import Expense
 
 from api.users.serializers import ShortUserSerializer
-from api.groups.serializers import GroupSerializer, GroupCreateSerializer, GroupMemberSerializer, GroupMemberCreateSerializer
+from api.groups.serializers import GroupSerializer, GroupCreateSerializer, GroupMemberSerializer, GroupMemberCreateSerializer, GroupMemberBulkCreateSerializer
 
 
 User = get_user_model()
@@ -35,7 +36,7 @@ class GroupViewSet(DotsModelViewSet):
         expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
         return super().get_queryset().filter(created_by=self.request.user).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
     
-    @action(detail=True, methods=["get"], url_path="non-member-friends", serializer_class=ShortUserSerializer)
+    @action(detail=True, methods=["GET"], url_path="non-member-friends", serializer_class=ShortUserSerializer)
     def non_member_friends(self, request, pk=None):
         group = self.get_object()
         friends = Friend.objects.filter(created_by=request.user).values_list('member_id', flat=True)
@@ -80,3 +81,13 @@ class GroupMemberViewSet(DotsModelViewSet):
         
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=False, methods=["POST"], url_path="bulk-create", serializer_class=GroupMemberSerializer)
+    def bulk_create(self, request):
+        serializer = GroupMemberBulkCreateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        with transaction.atomic():
+            members = serializer.save()
+        output_serializer = self.serializer_class(members, many=True)
+        return Response({"data": output_serializer.data}, status=status.HTTP_201_CREATED)
