@@ -75,7 +75,7 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         group = attrs["group"]
         paid_by = attrs["paid_by"]
         split_type = attrs["split_type"]
-        splits = attrs["splits"]
+        splits = attrs.get("splits", None)
         items = attrs.get("items", [])
         
         if not Group.objects.filter(id=group.id, created_by=request.user):
