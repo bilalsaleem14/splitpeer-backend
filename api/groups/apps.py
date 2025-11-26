@@ -7,3 +7,4 @@ class GroupsConfig(AppConfig):
 
     def ready(self):
         import config.signals
+        import api.groups.signals

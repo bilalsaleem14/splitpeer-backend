@@ -7,6 +7,7 @@ from api.friends.views import FriendViewSet
 from api.groups.views import GroupViewSet, GroupMemberViewSet
 from api.categories.views import CategoryViewset
 from api.expenses.views import ExpenseViewSet
+from api.activities.views import ActivityViewset
 
 router = DefaultRouter(trailing_slash=False)
 
@@ -18,6 +19,7 @@ router.register(r"groups", GroupViewSet, basename="groups")
 router.register(r"group-members", GroupMemberViewSet, basename="group-members")
 router.register(r"categories", CategoryViewset, basename="categories")
 router.register(r"expenses", ExpenseViewSet, basename="expenses")
+router.register(r'activities', ActivityViewset, basename="notifications")
 
 urlpatterns = [
     path("auth/", include("api.jwtauth.urls")),

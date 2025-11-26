@@ -1,7 +1,5 @@
 from django.db import models
-from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
 
 from api.core.models import BaseModel, CharFieldSizes
 
@@ -28,9 +26,3 @@ class GroupMember(BaseModel):
     
     def __str__(self):
         return f"{self.user} in {self.group.name}"
-
-
-@receiver(post_save, sender=Group)
-def add_creator_as_member(sender, instance, created, **kwargs):
-    if created:
-        GroupMember.objects.create(group=instance, user=instance.created_by)

@@ -15,6 +15,8 @@ from api.groups.models import Group, GroupMember
 from api.groups.serializers import GroupMemberSerializer
 from api.categories.serializers import CategorySerializer
 
+from api.expenses.utils import create_expense_activity
+
 
 User = get_user_model()
 
@@ -150,12 +152,7 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         if expense.split_type == Expense.SplitType.ITEMIZED:
             for item in items_data:
                 assignee_id = item["assignee"]
-                ExpenseItem.objects.create(
-                    expense=expense,
-                    title=item["title"],
-                    amount=item["amount"],
-                    assignee=group_members[assignee_id]
-                )
+                ExpenseItem.objects.create(expense=expense, title=item["title"], amount=item["amount"], assignee=group_members[assignee_id])
             
             agg = {}
             for it in items_data:
@@ -164,45 +161,44 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
                 agg[pid] += it["amount"]
 
             for pid, amt in agg.items():
-                ExpenseSplit.objects.create(
-                    expense=expense,
-                    participant=group_members[pid],
-                    amount=amt,
-                    is_included=True
-                )
-            return expense
+                ExpenseSplit.objects.create(expense=expense, participant=group_members[pid], amount=amt, is_included=True)
+
+        if expense.split_type in (Expense.SplitType.EQUAL, Expense.SplitType.PERCENTAGE):
+            included_splits = [s for s in splits_data if s["is_included"]]
+            
+            if expense.split_type == Expense.SplitType.EQUAL:
+                split_amount = expense.amount / len(included_splits)
+                for split_data in splits_data:
+                    participant_id = split_data["participant"]
+                    ExpenseSplit.objects.create(
+                        expense=expense,
+                        participant=group_members[participant_id],
+                        amount=split_amount if split_data["is_included"] else None,
+                        is_included=split_data["is_included"]
+                    )
+            
+            elif expense.split_type == Expense.SplitType.PERCENTAGE:
+                for split_data in splits_data:
+                    participant_id = split_data["participant"]
+                    if split_data["is_included"]:
+                        percentage = split_data["percentage"]
+                        amount = (expense.amount * percentage) / Decimal("100")
+                    else:
+                        percentage = None
+                        amount = None
+                    
+                    ExpenseSplit.objects.create(
+                        expense=expense,
+                        participant=group_members[participant_id],
+                        amount=amount,
+                        percentage=percentage,
+                        is_included=split_data["is_included"]
+                    )
         
-        included_splits = [s for s in splits_data if s["is_included"]]
-        
-        if expense.split_type == Expense.SplitType.EQUAL:
-            split_amount = expense.amount / len(included_splits)
-            for split_data in splits_data:
-                participant_id = split_data["participant"]
-                ExpenseSplit.objects.create(
-                    expense=expense,
-                    participant=group_members[participant_id],
-                    amount=split_amount if split_data["is_included"] else None,
-                    is_included=split_data["is_included"]
-                )
-        
-        elif expense.split_type == Expense.SplitType.PERCENTAGE:
-            for split_data in splits_data:
-                participant_id = split_data["participant"]
-                if split_data["is_included"]:
-                    percentage = split_data["percentage"]
-                    amount = (expense.amount * percentage) / Decimal("100")
-                else:
-                    percentage = None
-                    amount = None
-                
-                ExpenseSplit.objects.create(
-                    expense=expense,
-                    participant=group_members[participant_id],
-                    amount=amount,
-                    percentage=percentage,
-                    is_included=split_data["is_included"]
-                )
-        
+        splits = expense.expense_splits.filter(is_included=True)
+        member_amount_map = {s.participant_id: s.amount for s in splits}
+        create_expense_activity(expense=expense, member_amount_map=member_amount_map, triggered_by=self.context["request"].user)
+
         return expense
 
 
@@ -356,6 +352,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         splits_data = validated_data.pop("splits", None)
         items_ops = validated_data.pop("_items_ops", None)
         old_items = validated_data.pop("items", None)
+        old_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
 
         old_amount = instance.amount
         old_split_type = instance.split_type
@@ -443,56 +440,70 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
             if splits_to_create:
                 ExpenseSplit.objects.bulk_create(splits_to_create)
             
-            return instance
+        if instance.split_type in (Expense.SplitType.EQUAL, Expense.SplitType.PERCENTAGE):
+            if splits_data:
+                for data in splits_data:
+                    participant_id = data["participant"]
+                    split = existing_splits.get(participant_id)
 
-        if splits_data:
-            for data in splits_data:
-                participant_id = data["participant"]
-                split = existing_splits.get(participant_id)
+                    if split:
+                        if "is_included" in data:
+                            split.is_included = data["is_included"]
 
-                if split:
-                    if "is_included" in data:
-                        split.is_included = data["is_included"]
+                        if "percentage" in data:
+                            split.percentage = data["percentage"]
 
-                    if "percentage" in data:
-                        split.percentage = data["percentage"]
+                        if "amount" in data:
+                            split.amount = data["amount"]
 
-                    if "amount" in data:
-                        split.amount = data["amount"]
-
-                    split.save()
-                else:
-                    ExpenseSplit.objects.create(
-                        expense=instance,
-                        participant_id=participant_id,
-                        is_included=data.get("is_included", True),
-                        percentage=data.get("percentage"),
-                        amount=data.get("amount"),
-                    )
-
-        amount_changed = ("amount" in validated_data and validated_data["amount"] != old_amount)
-        split_type_changed = ("split_type" in validated_data and validated_data["split_type"] != old_split_type)
-        splits_provided = splits_data is not None
-
-        must_recalculate = amount_changed or split_type_changed or splits_provided
-
-        if must_recalculate:
-            all_splits_qs = instance.expense_splits.all()
-            included_splits = [s for s in all_splits_qs if s.is_included]
-
-            if instance.split_type == Expense.SplitType.EQUAL:
-                per_participant = (instance.amount / len(included_splits)) if included_splits else Decimal("0")
-                for s in all_splits_qs:
-                    s.amount = per_participant if s.is_included else None
-                    s.percentage = None
-                    s.save()
-
-            elif instance.split_type == Expense.SplitType.PERCENTAGE:
-                for s in all_splits_qs:
-                    if s.is_included and s.percentage:
-                        s.amount = (instance.amount * s.percentage) / Decimal("100")
+                        split.save()
                     else:
-                        s.amount = None
-                    s.save()
+                        ExpenseSplit.objects.create(
+                            expense=instance,
+                            participant_id=participant_id,
+                            is_included=data.get("is_included", True),
+                            percentage=data.get("percentage"),
+                            amount=data.get("amount"),
+                        )
+
+            amount_changed = ("amount" in validated_data and validated_data["amount"] != old_amount)
+            split_type_changed = ("split_type" in validated_data and validated_data["split_type"] != old_split_type)
+            splits_provided = splits_data is not None
+
+            must_recalculate = amount_changed or split_type_changed or splits_provided
+
+            if must_recalculate:
+                all_splits_qs = instance.expense_splits.all()
+                included_splits = [s for s in all_splits_qs if s.is_included]
+
+                if instance.split_type == Expense.SplitType.EQUAL:
+                    per_participant = (instance.amount / len(included_splits)) if included_splits else Decimal("0")
+                    for s in all_splits_qs:
+                        s.amount = per_participant if s.is_included else None
+                        s.percentage = None
+                        s.save()
+
+                elif instance.split_type == Expense.SplitType.PERCENTAGE:
+                    for s in all_splits_qs:
+                        if s.is_included and s.percentage:
+                            s.amount = (instance.amount * s.percentage) / Decimal("100")
+                        else:
+                            s.amount = None
+                        s.save()
+
+        new_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
+        changed_members = {}
+
+        for pid, new_amount in new_splits.items():
+            old_amount = old_splits.get(pid)
+
+            if old_amount is not None and new_amount != old_amount:
+                changed_members[pid] = new_amount
+
+            if old_amount is None and new_amount is not None:
+                changed_members[pid] = new_amount
+
+        if changed_members:
+            create_expense_activity(expense=instance, member_amount_map=changed_members, triggered_by=self.context["request"].user, is_update=True)
 
         return instance

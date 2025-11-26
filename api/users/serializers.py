@@ -9,10 +9,15 @@ User = get_user_model()
     
 
 class UserSerializer(serializers.ModelSerializer):
+    has_unread_activities = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["id", "email", "fullname", "profile_picture", "is_darkmode", "is_cloud_sync"]
+        fields = ["id", "email", "fullname", "profile_picture", "is_darkmode", "is_cloud_sync", "has_unread_activities"]
+    
+    def get_has_unread_activities(self, obj):
+        has_unread = obj.received_notifications.all().filter(is_read=False).exists()
+        return True if has_unread else False
 
 
 class ImageSerializer(serializers.ModelSerializer):

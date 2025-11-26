@@ -22,6 +22,8 @@ from api.expenses.models import Expense
 from api.users.serializers import ShortUserSerializer
 from api.groups.serializers import GroupSerializer, GroupCreateSerializer, GroupMemberSerializer, GroupMemberCreateSerializer, GroupMemberBulkCreateSerializer
 
+from api.groups.utils import create_group_member_activities
+
 
 User = get_user_model()
 
@@ -89,5 +91,6 @@ class GroupMemberViewSet(DotsModelViewSet):
 
         with transaction.atomic():
             members = serializer.save()
+            create_group_member_activities(members, request.user)
         output_serializer = self.serializer_class(members, many=True)
         return Response({"data": output_serializer.data}, status=status.HTTP_201_CREATED)

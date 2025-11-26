@@ -6,14 +6,14 @@ from rest_framework import serializers
 from api.core.utils import DotsValidationError
 
 from api.friends.models import Friend
-from api.users.serializers import UserSerializer
+from api.users.serializers import ShortUserSerializer
 
 
 User = get_user_model()
 
 
 class FriendSerializer(serializers.ModelSerializer):
-    member = UserSerializer(read_only=True)
+    member = ShortUserSerializer(read_only=True)
 
     class Meta:
         model = Friend
@@ -45,8 +45,8 @@ class FriendCreateSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class UserWithFriendStatusSerializer(UserSerializer):
+class UserWithFriendStatusSerializer(ShortUserSerializer):
     is_friend = serializers.BooleanField(read_only=True)
 
-    class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ["is_friend"]
+    class Meta(ShortUserSerializer.Meta):
+        fields = ShortUserSerializer.Meta.fields + ["is_friend"]

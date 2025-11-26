@@ -6,7 +6,6 @@ from api.core.filters import ExpenseFilter
 from api.core.mixin import DotsModelViewSet
 from api.core.permissions import IsOwner
 
-from api.groups.models import GroupMember
 from api.expenses.models import Expense
 
 from api.expenses.serializers import ExpenseSerializer, ExpenseCreateSerializer, ExpenseUpdateSerializer
