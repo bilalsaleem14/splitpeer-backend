@@ -89,7 +89,7 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         
         if split_type == Expense.SplitType.ITEMIZED:
             if not items:
-                raise DotsValidationError({"error": "Items are required for itemized split type."})
+                raise DotsValidationError({"error": "At least one item is required for itemized split type."})
             
             assignee_ids = [i["assignee"] for i in items]
             group_members = GroupMember.objects.filter(group=group, id__in=assignee_ids)
@@ -98,7 +98,7 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
 
             total_items_amount = sum([i["amount"] for i in items])
             if total_items_amount != attrs["amount"]:
-                raise DotsValidationError({"error": "Total of item amounts must equal expense amount."})
+                raise DotsValidationError({"error": "Total itemized amount must match the main expense amount."})
 
             attrs["_group_members"] = {gm.id: gm for gm in group_members}
             return attrs
