@@ -1,5 +1,7 @@
 from api.activities.models import Activity
 
+from api.activities.services import notification_service
+
 
 def create_group_member_activities(members, sender_user):
     activity_objects = []
@@ -18,4 +20,5 @@ def create_group_member_activities(members, sender_user):
                     f"check your split now!",
         ))
 
-    Activity.objects.bulk_create(activity_objects)
+    # Activity.objects.bulk_create(activity_objects)
+    notification_service.bulk_create(activity_objects, create_activity=True)

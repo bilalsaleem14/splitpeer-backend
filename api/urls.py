@@ -9,6 +9,7 @@ from api.categories.views import CategoryViewset
 from api.expenses.views import ExpenseViewSet
 from api.activities.views import ActivityViewset
 from api.users.views import DashboardStatisticsView, DashboardSpendingPatternView
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 
 router = DefaultRouter(trailing_slash=False)
 
@@ -21,6 +22,7 @@ router.register(r"group-members", GroupMemberViewSet, basename="group_members")
 router.register(r"categories", CategoryViewset, basename="categories")
 router.register(r"expenses", ExpenseViewSet, basename="expenses")
 router.register(r'activities', ActivityViewset, basename="notifications")
+router.register(r"devices", FCMDeviceAuthorizedViewSet, basename="devices")
 
 urlpatterns = [
     path("auth/", include("api.jwtauth.urls")),

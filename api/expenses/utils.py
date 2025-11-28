@@ -1,5 +1,7 @@
 from api.activities.models import Activity
 
+from api.activities.services import notification_service
+
 
 def create_expense_activity(expense, member_amount_map, triggered_by, is_update=False):
     activity_list = []
@@ -18,4 +20,5 @@ def create_expense_activity(expense, member_amount_map, triggered_by, is_update=
 
         activity_list.append(Activity(sender=triggered_by, receiver=gm.user, type=activity_type, title=title, content=content))
 
-    Activity.objects.bulk_create(activity_list)
+    # Activity.objects.bulk_create(activity_list)
+    notification_service.bulk_create(activity_list, create_activity=True)
