@@ -14,5 +14,5 @@ def add_creator_as_member(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=GroupMember)
 def create_group_member_activity(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.user_id != instance.group.created_by_id:
         create_group_member_activities([instance], instance.group.created_by)
