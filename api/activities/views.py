@@ -28,3 +28,33 @@ class ActivityViewset(GenericDotsViewSet, ListModelMixin):
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from firebase_admin import messaging
+
+@api_view(["POST"])
+def send_test_notification(request):
+    fcm_token = request.data.get("fcm_token")
+
+    if not fcm_token:
+        return Response({"error": "fcm_token is required"}, status=400)
+
+    # Message
+    message = messaging.Message(
+        token=fcm_token,
+        notification=messaging.Notification(
+            title="Test Notification",
+            body="This is a test message from Firebase Admin"
+        ),
+        data={  # Optional
+            "extra_info": "hello world"
+        }
+    )
+
+    # Send message
+    response = messaging.send(message)
+
+    return Response({"message_id": response})
+

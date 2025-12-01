@@ -7,7 +7,7 @@ from api.friends.views import FriendViewSet
 from api.groups.views import GroupViewSet, GroupMemberViewSet
 from api.categories.views import CategoryViewset
 from api.expenses.views import ExpenseViewSet
-from api.activities.views import ActivityViewset
+from api.activities.views import ActivityViewset, send_test_notification
 from api.users.views import DashboardStatisticsView, DashboardSpendingPatternView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 
@@ -30,4 +30,5 @@ urlpatterns = [
     path("profile/image", UserProfileViewset.as_view({"patch": "user_image"}), name="user_image"),
     path("dashboard/statistics", DashboardStatisticsView.as_view(), name="dashboard_statistics"),
     path("dashboard/spending-patterns", DashboardSpendingPatternView.as_view(), name="dashboard_spending_patterns"),
+    path("send-test-fcm", send_test_notification),
 ] + router.urls

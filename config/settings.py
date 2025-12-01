@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 import environ
 import firebase_admin
+from firebase_admin import credentials
 
 from pathlib import Path
 from datetime import timedelta
@@ -22,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 env = environ.Env()
 
+cred = credentials.Certificate(env.str("GOOGLE_APPLICATION_CREDENTIALS"))
 firebase_admin.initialize_app()
 
 # Quick-start development settings - unsuitable for production
