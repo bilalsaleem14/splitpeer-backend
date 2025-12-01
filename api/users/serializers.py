@@ -54,7 +54,7 @@ class DashboardStatisticsSerializer(serializers.Serializer):
         daily_average = total_expense / Decimal(days_passed) if days_passed > 0 else Decimal("0.00")
         
         return {
-            "total_expense": total_expense,
+            "total_expense": total_expense.quantize(Decimal("0.01")),
             "daily_average": daily_average.quantize(Decimal("0.01")),
             # "days_passed": days_passed,
             # "month_start": month_start.date(),
