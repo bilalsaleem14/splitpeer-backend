@@ -62,7 +62,7 @@ class NotificationService:
                 
                 badge_count = Activity.objects.filter(receiver=receiver, is_read=False).count()
                 
-                fcm_user = getattr(receiver, "fcmdevice", None)
+                fcm_user = receiver.fcmdevice_set.last()
                 if fcm_user:
                     self.send(device_id=fcm_user.registration_id, title=title, body=content, details=data, badge=badge_count)
         except Exception as e:
