@@ -18,6 +18,7 @@ def create_group_member_activities(members, sender_user):
             content=f"You have been added to the new group '{group.name}' "
                     f"created by '{sender_user.fullname}': "
                     f"check your split now!",
+            target=member.group
         ))
 
     # Activity.objects.bulk_create(activity_objects)

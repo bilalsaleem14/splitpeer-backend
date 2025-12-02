@@ -18,7 +18,7 @@ def create_expense_activity(expense, member_amount_map, triggered_by, is_update=
             content = f"New expense added by {triggered_by.fullname if triggered_by != gm.user else 'you'} in the group '{expense.group.name}', '{expense.title}'. Your share is ${amount}."
             activity_type = Activity.Types.EXPENSE_CREATE
 
-        activity_list.append(Activity(sender=triggered_by, receiver=gm.user, type=activity_type, title=title, content=content))
+        activity_list.append(Activity(sender=triggered_by, receiver=gm.user, type=activity_type, title=title, content=content, target=expense))
 
     # Activity.objects.bulk_create(activity_list)
     notification_service.bulk_create(activity_list, create_activity=True)
