@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+from api.core.permissions import IsOwner
 from api.core.filters import GroupMemberFilter, UserFilter
 from api.core.mixin import DotsModelViewSet
 from api.core.utils import DotsValidationError
@@ -32,11 +33,11 @@ class GroupViewSet(DotsModelViewSet):
     serializer_class = GroupSerializer
     serializer_create_class = GroupCreateSerializer
     queryset = Group.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
-        return super().get_queryset().filter(created_by=self.request.user).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
+        return super().get_queryset().filter(Q(created_by=self.request.user) | Q(members__user=self.request.user)).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Count("members", filter=~Q(members__user=F("created_by")), distinct=True), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).distinct().order_by("-id")
     
     @action(detail=True, methods=["GET"], url_path="non-member-friends", serializer_class=ShortUserSerializer)
     def non_member_friends(self, request, pk=None):
