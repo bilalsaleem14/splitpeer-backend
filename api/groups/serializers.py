@@ -32,7 +32,7 @@ class GroupSerializer(serializers.ModelSerializer):
         return getattr(obj, "total_expenses_annotated", 0.0)
     
     def get_member_profile_pictures(self, obj):
-        members = obj.members.all()[:5]
+        members = obj.members.exclude(user=obj.created_by)[:5]
         users = [m.user for m in members]
         return ImageSerializer(users, many=True, context=self.context).data
 

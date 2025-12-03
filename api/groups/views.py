@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery
+from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery, When, IntegerField, Case
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
@@ -64,8 +64,8 @@ class GroupMemberViewSet(DotsModelViewSet):
     filterset_class = GroupMemberFilter
     
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(group__members__user=self.request.user).distinct()
+        queryset = super().get_queryset().filter(group__members__user=self.request.user).distinct()
+        return queryset.annotate(is_request_user=Case(When(user=self.request.user, then=Value(0)), default=Value(1), output_field=IntegerField())).order_by("is_request_user", "-id")
     
     def get_object(self):
         if self.request.method == "DELETE":
