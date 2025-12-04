@@ -103,7 +103,7 @@ class ProfileViewSets(GenericDotsViewSet):
 
     @action(detail=False, url_path="password/update", methods=["PATCH"], serializer_class=UpdatePasswordSerializer)
     def update_password(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         serializer.update_password(request.user)
         return Response({"user": ["Password has been updated successfully"]}, status=status.HTTP_200_OK)

@@ -10,6 +10,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.exceptions import AuthenticationFailed
 
+from allauth.socialaccount.models import SocialAccount
+
 from api.core.otp_helper import get_random_otp, send_confirmation_code, verify_otp
 from api.core.utils import DotsValidationError
 from api.core.validators import PasswordValidator, validate_image
@@ -36,6 +38,8 @@ class OTPSerializer(serializers.Serializer):
             raise DotsValidationError({"email": [f"This email is not registered"]})
         if user.exists() and otp_type in [OTP.Type.CREATE, OTP.Type.CHANGE]:
             raise DotsValidationError({"email": [f"User with this email already exists."]})
+        if user.exists() and SocialAccount.objects.filter(user=user.first()).exists() and otp_type == OTP.Type.FORGOT:
+            raise DotsValidationError({"email": [f"Cannot reset password for social accounts"]})
         
         timeout = timezone.now() + timedelta(seconds=300)
         new_otp = OTP.objects.create(code=get_random_otp(), email=email, type=otp_type, timeout=timeout)
@@ -151,6 +155,9 @@ class PasswordResetSerializer(serializers.Serializer):
         password = attrs.get("password")
         confirm_password = attrs.get("confirm_password")
 
+        if SocialAccount.objects.filter(user=self.context["request"].user).exists():
+            raise DotsValidationError({"error": "Social accounts cannot reset password."})
+
         if not compare_digest(password.encode('utf-8'), confirm_password.encode('utf-8')):
             raise serializers.ValidationError({"password": "Passwords do not match"})
 
@@ -171,6 +178,9 @@ class UpdatePasswordSerializer(serializers.Serializer):
         old_password = attrs["old_password"]
         password = attrs.get("password")
         confirm_password = attrs.pop("confirm_password", None)
+
+        if SocialAccount.objects.filter(user=user).exists():
+            raise DotsValidationError({"error": "Social accounts cannot update password."})
 
         if not compare_digest(password.encode('utf-8'), confirm_password.encode('utf-8')):
             raise DotsValidationError({"password": "Password and Confirm Password do not match."})
