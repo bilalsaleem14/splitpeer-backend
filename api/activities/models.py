@@ -23,9 +23,9 @@ class Activity(BaseModel):
     is_read = models.BooleanField(default=False)
     type = models.CharField(max_length=CharFieldSizes.SMALL, choices=Types.choices)
 
-    target_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    target_object_id = models.PositiveIntegerField()
+    target_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    target_object_id = models.PositiveIntegerField(null=True, blank=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
     def __str__(self):
-        return self.title
+        return f'{self.title} -> {self.receiver}'

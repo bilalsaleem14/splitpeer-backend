@@ -155,9 +155,6 @@ class PasswordResetSerializer(serializers.Serializer):
         password = attrs.get("password")
         confirm_password = attrs.get("confirm_password")
 
-        if SocialAccount.objects.filter(user=self.context["request"].user).exists():
-            raise DotsValidationError({"error": "Social accounts cannot reset password."})
-
         if not compare_digest(password.encode('utf-8'), confirm_password.encode('utf-8')):
             raise serializers.ValidationError({"password": "Passwords do not match"})
 

@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
+from allauth.socialaccount.models import SocialAccount
+
 from api.core.validators import validate_image
 
 from api.expenses.models import ExpenseSplit
@@ -18,14 +20,18 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     has_unread_activities = serializers.SerializerMethodField()
+    is_social = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ["id", "email", "fullname", "profile_picture", "is_darkmode", "is_cloud_sync", "has_unread_activities"]
+        fields = ["id", "email", "fullname", "profile_picture", "is_darkmode", "is_cloud_sync", "has_unread_activities", "is_social"]
     
     def get_has_unread_activities(self, obj):
         has_unread = obj.received_notifications.all().filter(is_read=False).exists()
         return True if has_unread else False
+    
+    def get_is_social(self, obj):
+        return SocialAccount.objects.filter(user=obj).exists()
 
 
 class ImageSerializer(serializers.ModelSerializer):

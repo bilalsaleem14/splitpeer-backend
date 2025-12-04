@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.exceptions import APIException, _get_error_details
 
+
 User = get_user_model()
 
 
