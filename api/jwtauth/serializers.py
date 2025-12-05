@@ -33,6 +33,7 @@ class OTPSerializer(serializers.Serializer):
         email = attrs["email"].lower()
         otp_type = attrs["otp_type"]
         user = User.objects.filter(email=email)
+        print(user)
         
         if not user.exists() and otp_type == OTP.Type.FORGOT:
             raise DotsValidationError({"email": [f"This email is not registered"]})
@@ -44,7 +45,7 @@ class OTPSerializer(serializers.Serializer):
         timeout = timezone.now() + timedelta(seconds=300)
         new_otp = OTP.objects.create(code=get_random_otp(), email=email, type=otp_type, timeout=timeout)
         OTP.objects.filter(email=email, type=otp_type).exclude(pk=new_otp.pk).delete()
-        # send_confirmation_code(new_otp=new_otp, otp_type=otp_type)
+        send_confirmation_code(new_otp=new_otp, otp_type=otp_type)
         return attrs
 
 
