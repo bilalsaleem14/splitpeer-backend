@@ -473,6 +473,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
             must_recalculate = amount_changed or split_type_changed or splits_provided
 
             if must_recalculate:
+                instance.refresh_from_db()
                 all_splits_qs = instance.expense_splits.all()
                 included_splits = [s for s in all_splits_qs if s.is_included]
 
