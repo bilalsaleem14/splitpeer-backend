@@ -491,7 +491,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
                             s.amount = None
                         s.save()
 
-        new_splits = {s.participant_id: (s.amount.quantize(Decimal("0.01")) or None) for s in instance.expense_splits.all()}
+        new_splits = {s.participant_id: (s.amount.quantize(Decimal("0.01")) if s.amount is not None else None) for s in instance.expense_splits.all()}
         changed_members = {}
 
         for pid, new_amount in new_splits.items():
