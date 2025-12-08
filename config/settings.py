@@ -67,6 +67,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
 
     "api.users",
     "api.jwtauth",
@@ -208,6 +209,18 @@ SOCIALACCOUNT_PROVIDERS = {
         "APP": {"client_id": env.str("GOOGLE_CLIENT_ID"), "secret": env.str("GOOGLE_SECRET_KEY"), "key": ""},
         "SCOPE": ["profile", "email", "openid"],
         "AUTH_PARAMS": {"access_type": "online"}
+    },
+    "facebook": {
+        "METHOD": "oauth2",
+        "SDK_URL": "https://connect.facebook.net/en_US/sdk.js",
+        "SCOPE": ["email", "public_profile"],
+        "AUTH_PARAMS": {"auth_type": "rerequest"},
+        "INIT_PARAMS": {"cookie": True},
+        "FIELDS": ["id", "email", "name", "first_name", "last_name", "picture.type(large)"],
+        "EXCHANGE_TOKEN": True,
+        "VERIFIED_EMAIL": False,
+        "VERSION": "v24.0",
+        "APP": {"client_id": env.str("FACEBOOK_APP_ID"), "secret": env.str("FACEBOOK_APP_SECRET"), "key": ""}
     }
 }
 

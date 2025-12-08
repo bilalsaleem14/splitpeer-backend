@@ -11,6 +11,13 @@ from api.core.utils import DotsValidationError
 User = get_user_model()
 
 
+def extract_picture_url(extra):
+    if isinstance(extra.get("picture"), str):
+        return extra["picture"]
+
+    return extra.get("picture", {}).get("data", {}).get("url")
+
+
 class CustomSocialAdapter(DefaultSocialAccountAdapter):
     
     def save_user(self, request, sociallogin, form=None):
@@ -18,7 +25,8 @@ class CustomSocialAdapter(DefaultSocialAccountAdapter):
         try:
             social_account = SocialAccount.objects.get(user=user)
             user.fullname = social_account.extra_data.get("name", "")
-            profile_picture = social_account.extra_data.get("picture", "")
+            profile_picture = None
+            profile_picture = extract_picture_url(social_account.extra_data)
             if profile_picture:
                 response = requests.get(profile_picture)
                 if response.status_code == 200:
