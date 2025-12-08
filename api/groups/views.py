@@ -43,14 +43,14 @@ class GroupViewSet(DotsModelViewSet):
     @action(detail=True, methods=["GET"], url_path="non-member-friends", serializer_class=ShortUserSerializer)
     def non_member_friends(self, request, pk=None):
         group = self.get_object()
-        friends = Friend.objects.filter(created_by=request.user).values_list('member_id', flat=True)
+        friend_qs = Friend.objects.filter(created_by=request.user)
         group_member_ids = group.members.values_list('user_id', flat=True)
-        non_member_friend_ids = set(friends) - set(group_member_ids)
-        non_member_friends = User.objects.filter(id__in=non_member_friend_ids)
-        
-        filterset = UserFilter(request.GET, queryset=non_member_friends)
-        filtered_queryset = filterset.qs
+        non_member_friend_ids = friend_qs.exclude(member_id__in=group_member_ids).values_list('member_id', flat=True)
+        latest_friend_subquery = Friend.objects.filter(created_by=request.user, member_id=OuterRef('pk')).order_by('-id').values('id')[:1]
+        non_member_friends = User.objects.filter(id__in=non_member_friend_ids).annotate(friend_record_id=Subquery(latest_friend_subquery)).order_by('-friend_record_id')
 
+        filterset = UserFilter(request.GET, queryset=non_member_friends)
+        filtered_queryset = filterset.qs.order_by('-friend_record_id')
         page = self.paginate_queryset(filtered_queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
