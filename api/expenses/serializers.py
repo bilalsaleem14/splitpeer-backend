@@ -53,7 +53,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
 class ExpenseSplitInputSerializer(serializers.Serializer):
     participant = serializers.IntegerField(required=True)
-    percentage = serializers.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(Decimal("0.10")), MaxValueValidator(Decimal("100.00"))], required=False, allow_null=True)
+    percentage = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
     is_included = serializers.BooleanField(required=True)
 
 
@@ -71,6 +71,22 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
         fields = ["group", "title", "amount", "paid_by", "category", "notes", "split_type", "splits", "items"]
+    
+    def validate_splits(self, splits):
+        for split in splits:
+            is_included = split.get("is_included")
+            percentage = split.get("percentage")
+
+            if is_included is False:
+                continue
+
+            if percentage is None:
+                raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
+
+            if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
+                raise DotsValidationError({"error": "Ensure percentage for included participants is greater than or equal to 0.10."})
+
+        return splits
     
     def validate(self, attrs):
         request = self.context["request"]
@@ -223,7 +239,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
                 raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
 
             if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
-                raise DotsValidationError({"error": "Ensure this value is greater than or equal to 0.10."})
+                raise DotsValidationError({"error": "Ensure percentage for included participants is greater than or equal to 0.10."})
 
         return splits
     
