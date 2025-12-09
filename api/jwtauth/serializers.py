@@ -33,7 +33,6 @@ class OTPSerializer(serializers.Serializer):
         email = attrs["email"].lower()
         otp_type = attrs["otp_type"]
         user = User.objects.filter(email=email)
-        print(user)
         
         if not user.exists() and otp_type == OTP.Type.FORGOT:
             raise DotsValidationError({"email": [f"This email is not registered"]})
