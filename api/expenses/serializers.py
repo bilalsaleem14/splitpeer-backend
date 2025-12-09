@@ -211,6 +211,22 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         model = Expense
         fields = ["title", "amount", "paid_by", "category", "notes", "splits", "items", "delete_items"]
     
+    def validate_splits(self, splits):
+        for split in splits:
+            is_included = split.get("is_included")
+            percentage = split.get("percentage")
+
+            if is_included is False:
+                continue
+
+            if percentage is None:
+                raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
+
+            if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
+                raise DotsValidationError({"error": "Ensure this value is greater than or equal to 0.10."})
+
+        return splits
+    
     def validate(self, attrs):
         request = self.context["request"]
         instance = self.instance
@@ -331,9 +347,9 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
                 total_percentage = Decimal("0")
                 for split in included_splits:
                     if "percentage" not in split or split["percentage"] is None:
-                        raise DotsValidationError({"splits": "Percentage is required for all included members in percentage split."})
+                        raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
                     if split["percentage"] < 0.1:
-                        raise DotsValidationError({"splits": "Percentage must be greater than 0.1."})
+                        raise DotsValidationError({"error": "Percentage must be greater than 0.1."})
                     total_percentage += split["percentage"]
                 
                 if included_count % 2 != 0:
@@ -490,6 +506,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
                             s.amount = (instance.amount * s.percentage) / Decimal("100")
                         else:
                             s.amount = None
+                            s.percentage = None
                         s.save()
 
         new_splits = {s.participant_id: (s.amount.quantize(Decimal("0.01")) if s.amount is not None else None) for s in instance.expense_splits.all()}
