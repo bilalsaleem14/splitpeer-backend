@@ -73,18 +73,19 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         fields = ["group", "title", "amount", "paid_by", "category", "notes", "split_type", "splits", "items"]
     
     def validate_splits(self, splits):
+        split_type = self.initial_data.get("split_type")
         for split in splits:
             is_included = split.get("is_included")
             percentage = split.get("percentage")
 
             if is_included is False:
                 continue
+            if split_type == Expense.SplitType.PERCENTAGE:
+                if percentage is None:
+                    raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
 
-            if percentage is None:
-                raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
-
-            if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
-                raise DotsValidationError({"error": "Ensure percentage for included participants is greater than or equal to 0.10."})
+                if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
+                    raise DotsValidationError({"error": "Ensure percentage for included participants is greater than or equal to 0.10."})
 
         return splits
     
@@ -228,18 +229,20 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         fields = ["title", "amount", "paid_by", "category", "notes", "splits", "items", "delete_items"]
     
     def validate_splits(self, splits):
+        split_type = self.initial_data.get("split_type")
         for split in splits:
             is_included = split.get("is_included")
             percentage = split.get("percentage")
 
             if is_included is False:
                 continue
+            
+            if split_type == Expense.SplitType.PERCENTAGE:
+                if percentage is None:
+                    raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
 
-            if percentage is None:
-                raise DotsValidationError({"error": "Percentage is required for all included members in percentage split."})
-
-            if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
-                raise DotsValidationError({"error": "Ensure percentage for included participants is greater than or equal to 0.10."})
+                if percentage < Decimal("0.10") or percentage > Decimal("100.00"):
+                    raise DotsValidationError({"error": "Ensure percentage for included participants is greater than or equal to 0.10."})
 
         return splits
     
