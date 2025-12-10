@@ -28,7 +28,7 @@ class SocialLoginSerializer(serializers.Serializer):
     
     def validate_existing_user(self, attrs):
         try:            
-            existing_user = User.objects.get(email=attrs.email)
+            existing_user = User.objects.get(email__iexact=attrs.email)
             if not SocialAccount.objects.filter(user=existing_user).exists():
                 raise DotsValidationError({"error": "An account already exists with this email address. Please sign in with your credentials."})
         except User.DoesNotExist:

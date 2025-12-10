@@ -44,3 +44,15 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["fullname"]
 
     objects = UserManager()
+
+    def clean(self):
+        super().clean()
+        if self.email:
+            existing = User.objects.filter(email__iexact=self.email).exclude(pk=self.pk)
+            if existing.exists():
+                from api.core.utils import DotsValidationError
+                raise DotsValidationError({"email": [f"User with this email already exists."]})
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)

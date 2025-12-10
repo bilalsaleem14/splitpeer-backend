@@ -40,7 +40,7 @@ class OTPViewSet(GenericDotsViewSet):
         email = serializer.validated_data["email"]
         otp_type = serializer.validated_data["otp_type"]
 
-        user_otp = OTP.objects.filter(email=email.lower(), type=otp_type).order_by("-pk").first()
+        user_otp = OTP.objects.filter(email__iexact=email, type=otp_type).order_by("-pk").first()
         return Response({"verification_token": [user_otp.verification_token]})
 
 

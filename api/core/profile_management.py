@@ -18,7 +18,7 @@ class UserProfileOperations:
         try:
             updated_fields = [field]
             otp = OTP.objects.get(verification_token=verification_token, type=otp_type)
-            user = user or User.objects.get(email=otp.email)
+            user = user or User.objects.get(email__iexact=otp.email)
             verify_otp(otp)
 
             if field == "password":

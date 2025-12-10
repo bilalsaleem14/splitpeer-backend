@@ -30,9 +30,9 @@ class OTPSerializer(serializers.Serializer):
     otp_type = serializers.ChoiceField(choices=OTP.Type.choices, write_only=True)
 
     def validate(self, attrs):
-        email = attrs["email"].lower()
+        email = attrs["email"]
         otp_type = attrs["otp_type"]
-        user = User.objects.filter(email=email)
+        user = User.objects.filter(email__iexact=email)
         
         if not user.exists() and otp_type == OTP.Type.FORGOT:
             raise DotsValidationError({"email": [f"This email is not registered"]})
@@ -43,7 +43,7 @@ class OTPSerializer(serializers.Serializer):
         
         timeout = timezone.now() + timedelta(seconds=300)
         new_otp = OTP.objects.create(code=get_random_otp(), email=email, type=otp_type, timeout=timeout)
-        OTP.objects.filter(email=email, type=otp_type).exclude(pk=new_otp.pk).delete()
+        OTP.objects.filter(email__iexact=email, type=otp_type).exclude(pk=new_otp.pk).delete()
         send_confirmation_code(new_otp=new_otp, otp_type=otp_type)
         return attrs
 
@@ -54,11 +54,11 @@ class VerifyOTPSerializer(serializers.Serializer):
     otp_code = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        email = attrs["email"].lower()
+        email = attrs["email"]
         otp_code = attrs["otp_code"]
         otp_type = attrs["otp_type"]
 
-        user_otp = OTP.objects.filter(email=email, type=otp_type).order_by("-pk").first()
+        user_otp = OTP.objects.filter(email__iexact=email, type=otp_type).order_by("-pk").first()
         if not user_otp:
             raise DotsValidationError({"email": [f"OTP not found"]})
         if str(user_otp.code) != otp_code:
@@ -88,7 +88,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         password = attrs.get("password")
         confirm_password = attrs.pop("confirm_password", None)
         verification_token = attrs.get("verification_token", None)
-        email = attrs.get("email").lower()
+        email = attrs.get("email")
 
         if not compare_digest(password.encode('utf-8'), confirm_password.encode('utf-8')):
             raise serializers.ValidationError({"password": "Passwords do not match"})
@@ -97,7 +97,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"verification_token": "This field is required"}) 
 
         try:
-            otp = OTP.objects.get(email=email, verification_token=verification_token, type=OTP.Type.CREATE)
+            otp = OTP.objects.get(email__iexact=email, verification_token=verification_token, type=OTP.Type.CREATE)
         except OTP.DoesNotExist:
             raise DotsValidationError({"message": ["No record found, regenerate token!"]})
         verify_otp(user_otp=otp)
@@ -122,12 +122,25 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
+        email = attrs.get(self.username_field)
+        password = attrs.get('password')
+        
         try:
-            data = super().validate(attrs)
-        except AuthenticationFailed:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
             raise DotsValidationError({"detail": "No active account found with the given credentials"})
-
-        serializer = UserSerializer(self.user, context=self.context)
+        
+        if not user.check_password(password):
+            raise DotsValidationError({"detail": "No active account found with the given credentials"})
+        
+        if not user.is_active:
+            raise DotsValidationError({"detail": "User account is disabled"})
+        
+        self.user = user
+        refresh = self.get_token(user)
+        data = {"refresh": str(refresh), "access": str(refresh.access_token)}
+        
+        serializer = UserSerializer(user, context=self.context)
         data.update(serializer.data)
         return data
 
