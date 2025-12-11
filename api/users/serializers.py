@@ -106,11 +106,11 @@ class DashboardSpendingPatternSerializer(serializers.Serializer):
         
         for category in all_categories:
             amount = spending_dict.get(category.id, Decimal("0.00"))
-            data.append({"label": category.name, "value": str(amount)})
+            data.append({"label": category.name, "value": str(amount.quantize(Decimal("0.01")))})
             total_spending += amount
         
         if uncategorized_spending > 0:
-            data.append({"label": "Uncategorized", "value": str(uncategorized_spending)})
+            data.append({"label": "Uncategorized", "value": str(uncategorized_spending.quantize(Decimal("0.01")))})
             total_spending += uncategorized_spending
         
         return {"data": data}
