@@ -69,4 +69,4 @@ class SocialLoginSerializer(serializers.Serializer):
     def get_login_response(self, user):
         refresh = RefreshToken.for_user(user)
         user_data = UserSerializer(user, context=self.context).data
-        return {"refresh": str(refresh), "access": str(refresh.access_token), "user": user_data}
+        return {"refresh": str(refresh), "access": str(refresh.access_token), **user_data}
