@@ -220,13 +220,14 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
 
 
 class ExpenseUpdateSerializer(serializers.ModelSerializer):
+    split_type = serializers.ChoiceField(choices=Expense.SplitType, required=False)
     splits = ExpenseSplitInputSerializer(many=True, required=False, write_only=True)
     items = ExpenseItemInputSerializer(many=True, required=False, write_only=True)
     delete_items = serializers.ListField(child=serializers.IntegerField(min_value=1), required=False, write_only=True)
     
     class Meta:
         model = Expense
-        fields = ["title", "amount", "paid_by", "category", "notes", "splits", "items", "delete_items"]
+        fields = ["title", "amount", "paid_by", "category", "notes", "split_type" "splits", "items", "delete_items"]
     
     def validate_splits(self, splits):
         split_type = self.initial_data.get("split_type")
@@ -251,9 +252,12 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         instance = self.instance
         amount = attrs.get("amount", instance.amount)
         group = instance.group
-        split_type = attrs.get("split_type", instance.split_type)
+        old_split_type = instance.split_type
+        split_type = attrs.get("split_type", old_split_type)
         items = attrs.get("items", None)
         delete_items = attrs.get("delete_items", None)
+
+        split_type_changed = old_split_type != split_type
         
         if not GroupMember.objects.filter(group=group, user=request.user).exists():
             raise DotsValidationError({"error": "You must be a member of this group to update expenses."})
@@ -262,6 +266,13 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
             paid_by = attrs["paid_by"]
             if paid_by.group != group:
                 raise DotsValidationError({"error": "Paid by member must belong to this group."})
+        
+        if split_type_changed:
+            if split_type == Expense.SplitType.ITEMIZED and not attrs.get("items"):
+                raise DotsValidationError({"error": "Items are required when switching to itemized split type."})
+
+            if split_type in (Expense.SplitType.EQUAL, Expense.SplitType.PERCENTAGE) and not attrs.get("splits"):
+                raise DotsValidationError({"error": "Splits are required when switching split type."})
 
         if split_type == Expense.SplitType.ITEMIZED:
             if amount != instance.amount and (items is None and delete_items is None):
@@ -386,15 +397,20 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         splits_data = validated_data.pop("splits", None)
         items_ops = validated_data.pop("_items_ops", None)
-        old_items = validated_data.pop("items", None)
         old_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
 
         old_amount = instance.amount
         old_split_type = instance.split_type
+        split_type = validated_data.get("split_type", old_split_type)
+        split_type_changed = old_split_type != split_type
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+
+        if split_type_changed:
+            ExpenseSplit.objects.filter(expense=instance).delete()
+            ExpenseItem.objects.filter(expense=instance).delete()
 
         existing_splits = {s.participant_id: s for s in instance.expense_splits.all()}
 
