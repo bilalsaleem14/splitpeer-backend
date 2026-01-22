@@ -227,7 +227,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Expense
-        fields = ["title", "amount", "paid_by", "category", "notes", "split_type" "splits", "items", "delete_items"]
+        fields = ["title", "amount", "paid_by", "category", "notes", "split_type", "splits", "items", "delete_items"]
     
     def validate_splits(self, splits):
         split_type = self.initial_data.get("split_type")
@@ -360,7 +360,6 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         
         if "splits" in attrs and split_type in (Expense.SplitType.EQUAL, Expense.SplitType.PERCENTAGE):
             splits = attrs["splits"]
-            split_type = instance.split_type
             
             group_member_ids = [s["participant"] for s in splits]
             group_members = GroupMember.objects.filter(group=group, id__in=group_member_ids)
@@ -398,6 +397,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         splits_data = validated_data.pop("splits", None)
         items_ops = validated_data.pop("_items_ops", None)
         old_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
+        validated_data.pop("items", None)
 
         old_amount = instance.amount
         old_split_type = instance.split_type
@@ -411,6 +411,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         if split_type_changed:
             ExpenseSplit.objects.filter(expense=instance).delete()
             ExpenseItem.objects.filter(expense=instance).delete()
+            instance.refresh_from_db()
 
         existing_splits = {s.participant_id: s for s in instance.expense_splits.all()}
 
