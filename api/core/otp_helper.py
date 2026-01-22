@@ -51,3 +51,31 @@ def send_report_email(data):
     msg = EmailMultiAlternatives(email_subject, text_content, settings.EMAIL_HOST_USER, settings.CONTACT_US_EMAILS)
     msg.attach_alternative(template_content, "text/html")
     msg.send()
+
+
+def send_invite_email( email, inviter):
+    """Send invitation email to join SplitPeer"""
+    try:
+        
+
+        email_subject = f"{inviter.fullname} invited you to SplitPeer - Split expenses easily!"
+        text_content = email_subject
+        text_template = get_template("email_templates/friend_invitation.html")
+        context_obj = {
+            "inviter_name": inviter.fullname,
+            "inviter_email": inviter.email,
+            "invited_email": email,            
+        }
+
+        template_content = text_template.render(context_obj)
+        msg = EmailMultiAlternatives(
+            email_subject,
+            text_content,
+            settings.EMAIL_HOST_USER,
+            [email]
+        )
+        msg.attach_alternative(template_content, "text/html")
+        msg.send()
+
+    except Exception as e:
+        print(f"Failed to send invite email: {e}")

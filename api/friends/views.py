@@ -30,7 +30,8 @@ class FriendViewSet(DotsModelViewSet):
     search_fields = ["member__fullname", "member__email"]
 
     def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
+        queryset = super().get_queryset().filter(created_by=self.request.user)
+        return queryset
         
     @action(detail=False, url_path="out", methods=["GET"], serializer_class=UserWithFriendStatusSerializer)
     def not_friend(self, request):

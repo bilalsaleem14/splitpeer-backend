@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>You're Invited to SplitPeer!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+        .features {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎉 You're Invited to SplitPeer!</h1>
+        <p>{{ inviter_name }} wants you to join them for easy expense splitting</p>
+    </div>
+
+    <div class="content">
+        <h2>Hi there!</h2>
+
+        <p><strong>{{ inviter_name }}</strong> ({{ inviter_email }}) has invited you to join <strong>SplitPeer</strong> - the easiest way to split expenses with friends!</p>
+
+
+
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+        <h3>🔐 Need Help with Your Account?</h3>
+        <p>If you already have a SplitPeer account but can't remember your password, you can easily reset it via app</p>
+
+        <p><strong>How to reset your password:</strong></p>
+        <ol>
+            <li>Click the "Reset Password" button through the app</li>
+            <li>Enter your email address ({{ invited_email }})</li>
+            <li>Check your email for reset instructions</li>
+            <li>Create a new password and sign in</li>
+        </ol>
+
+        <p><em>This invitation was sent to {{ invited_email }}. If you didn't expect this invitation, you can safely ignore this email.</em></p>
+    </div>
+
+    <div class="footer">
+        <p>
+            SplitPeer - Making expense splitting simple<br>
+            Questions? Contact us at support@splitpeer.com
+        </p>
+    </div>
+</body>
+</html>

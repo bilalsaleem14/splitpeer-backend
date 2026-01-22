@@ -39,7 +39,8 @@ class GroupViewSet(DotsModelViewSet):
     def get_queryset(self):
         expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
         members_count_subquery = GroupMember.objects.filter(group=OuterRef("pk")).exclude(user=OuterRef("created_by")).values("group").annotate(count=Count("pk")).values("count")
-        return super().get_queryset().filter(Q(created_by=self.request.user) | Q(members__user=self.request.user)).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Coalesce(Subquery(members_count_subquery, output_field=IntegerField()), 0), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).distinct().order_by("-id")
+        queryset = super().get_queryset().filter(Q(created_by=self.request.user) | Q(members__user=self.request.user)).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Coalesce(Subquery(members_count_subquery, output_field=IntegerField()), 0), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).distinct().order_by("-id")
+        return queryset
 
     def get_object(self):
         try:

@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 from api.core.models import CharFieldSizes
-
+from config.settings import temporary_password
 
 class UserManager(BaseUserManager):
 
@@ -37,6 +37,7 @@ class User(AbstractUser):
     profile_picture = models.ImageField(default="default.png", upload_to="profile_images")
     is_darkmode = models.BooleanField(default=False)
     is_cloud_sync = models.BooleanField(default=False)
+    is_invited_user = models.BooleanField(default=False)
 
     username = None
 
@@ -47,12 +48,12 @@ class User(AbstractUser):
 
     def clean(self):
         super().clean()
-        if self.email:
-            existing = User.objects.filter(email__iexact=self.email).exclude(pk=self.pk)
-            if existing.exists():
-                from api.core.utils import DotsValidationError
-                raise DotsValidationError({"email": [f"User with this email already exists."]})
-    
+
     def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        if getattr(self, 'is_invited_user', False) and not self.pk:
+            if not self.password:
+                self.set_password(temporary_password)
+            super().save(*args, **kwargs)
+        else:
+            self.full_clean()
+            super().save(*args, **kwargs)

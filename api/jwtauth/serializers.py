@@ -92,9 +92,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         if not compare_digest(password.encode('utf-8'), confirm_password.encode('utf-8')):
             raise serializers.ValidationError({"password": "Passwords do not match"})
-        
+
         if not verification_token:
-            raise serializers.ValidationError({"verification_token": "This field is required"}) 
+            raise serializers.ValidationError({"verification_token": "This field is required"})
 
         try:
             otp = OTP.objects.get(email__iexact=email, verification_token=verification_token, type=OTP.Type.CREATE)
@@ -129,17 +129,35 @@ class LoginSerializer(TokenObtainPairSerializer):
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             raise DotsValidationError({"detail": "No active account found with the given credentials"})
-        
         if not user.check_password(password):
             raise DotsValidationError({"detail": "No active account found with the given credentials"})
         
-        if not user.is_active:
+        # Handle invited users - merge data and activate if needed
+        if getattr(user, 'is_invited_user', False):
+
+            update_fields = []
+
+            if not user.is_active:
+                user.is_active = True
+                update_fields.append('is_active')
+
+            if update_fields:
+                user.save(update_fields=update_fields)
+            else:
+                print(f"No fields needed updating")
+
+        elif not user.is_active:
+            print(f"🔍 DEBUG: User account is disabled")
             raise DotsValidationError({"detail": "User account is disabled"})
-        
+
+
         self.user = user
         refresh = self.get_token(user)
-        data = {"refresh": str(refresh), "access": str(refresh.access_token)}
-        
+        data = {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+
         serializer = UserSerializer(user, context=self.context)
         data.update(serializer.data)
         return data

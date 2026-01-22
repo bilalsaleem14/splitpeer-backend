@@ -30,4 +30,5 @@ urlpatterns = [
     path("profile/image", UserProfileViewset.as_view({"patch": "user_image"}), name="user_image"),
     path("dashboard/statistics", DashboardStatisticsView.as_view(), name="dashboard_statistics"),
     path("dashboard/spending-patterns", DashboardSpendingPatternView.as_view(), name="dashboard_spending_patterns"),
+    # path("sync-data", SyncDataView.as_view(), name="sync_data"),
 ] + router.urls

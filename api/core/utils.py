@@ -58,3 +58,22 @@ def build_serializer_context(scope):
     request = factory.get("/", **{"wsgi.url_scheme": scheme})
     request.META["HTTP_HOST"] = host
     return {"request": request}
+
+def get_or_create_user_by_email(email, create_placeholder=True):
+    """Get existing user or create placeholder user
+
+    Centralized function for user creation/retrieval with email normalization
+    """
+
+    User = get_user_model()
+    email = email.lower().strip()
+
+    user = User.objects.filter(email__iexact=email).first()
+    if not user and create_placeholder:
+        user = User.objects.create(
+            email=email,
+            fullname=email.split('@')[0],
+            is_active=False,
+            is_invited_user=True
+        )
+    return user
