@@ -162,6 +162,7 @@ cython_debug/
 /.vscode
 /media/*
 !/media/default.png
+!/media/default_group_thumbnail.jpg
 !/media/icons
 /static_files
 /.idea

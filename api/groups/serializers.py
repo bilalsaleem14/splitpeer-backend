@@ -26,10 +26,17 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ["id", "created_by", "name", "description", "thumbnail", "members_count", "total_expenses", "member_profile_pictures"]
     
     def get_members_count(self, obj):
-        return getattr(obj, "members_count_annotated", 0)
+        annotated_count = getattr(obj, "members_count_annotated", None)
+        if annotated_count is not None:
+            return annotated_count
+        return obj.members.exclude(user=obj.created_by).count()
 
     def get_total_expenses(self, obj):
-        return getattr(obj, "total_expenses_annotated", 0.0)
+        annotated_total = getattr(obj, "total_expenses_annotated", None)
+        if annotated_total is not None:
+            return annotated_total
+        total = obj.group_expenses.aggregate(total=Sum('amount'))['total']
+        return total or 0.0
     
     def get_member_profile_pictures(self, obj):
         members = obj.members.exclude(user=obj.created_by)[:5]

@@ -9,6 +9,7 @@ from api.categories.views import CategoryViewset
 from api.expenses.views import ExpenseViewSet
 from api.activities.views import ActivityViewset
 from api.users.views import DashboardStatisticsView, DashboardSpendingPatternView
+from api.sync.views import SyncDataView
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 
 router = DefaultRouter(trailing_slash=False)
@@ -30,5 +31,5 @@ urlpatterns = [
     path("profile/image", UserProfileViewset.as_view({"patch": "user_image"}), name="user_image"),
     path("dashboard/statistics", DashboardStatisticsView.as_view(), name="dashboard_statistics"),
     path("dashboard/spending-patterns", DashboardSpendingPatternView.as_view(), name="dashboard_spending_patterns"),
-    # path("sync-data", SyncDataView.as_view(), name="sync_data"),
+    path("sync-data", SyncDataView.as_view(), name="sync_data"),
 ] + router.urls

@@ -8,10 +8,11 @@ User = get_user_model()
 
 
 class Group(BaseModel):
+    client_id = models.CharField(max_length=100, unique=True, null=True, blank=True) 
     created_by = models.ForeignKey(User, related_name="group_created_by", on_delete=models.CASCADE)
     name = models.CharField(max_length=CharFieldSizes.SMALL)
     description = models.TextField()
-    thumbnail = models.ImageField(upload_to="group_thumbnails")
+    thumbnail = models.ImageField(upload_to="group_thumbnails", default="default_group_thumbnail.jpg")
 
     def __str__(self):
         return f"{self.name} -> {self.created_by}"

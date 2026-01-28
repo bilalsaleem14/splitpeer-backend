@@ -75,7 +75,8 @@ THIRD_PARTY_APPS = [
     "api.groups",
     "api.categories",
     "api.expenses",
-    "api.activities"
+    "api.activities",
+    "api.sync",
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS

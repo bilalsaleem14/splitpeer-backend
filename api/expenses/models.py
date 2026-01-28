@@ -18,7 +18,8 @@ class Expense(BaseModel):
         EQUAL = "equal", "equal" 
         PERCENTAGE = "percentage", "percentage"
         ITEMIZED = "itemized", "itemized"
-    
+
+    client_id = models.CharField(max_length=100, unique=True, null=True, blank=True) 
     group = models.ForeignKey(Group, related_name="group_expenses", on_delete=models.CASCADE)
     title = models.CharField(max_length=CharFieldSizes.SMALL)
     amount = models.DecimalField(max_digits=9, decimal_places=2, validators=[MinValueValidator(Decimal("0.50"))])
