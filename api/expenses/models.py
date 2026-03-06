@@ -27,7 +27,10 @@ class Expense(BaseModel):
     notes = models.TextField(null=True, blank=True)
     split_type = models.CharField(max_length=CharFieldSizes.SMALL, choices=SplitType)
     created_by = models.ForeignKey(User, related_name="expenses_created_by", on_delete=models.CASCADE)
-
+    amount_usd = models.DecimalField(max_digits=12, decimal_places=4, null=True, blank=True)
+    exchange_rate = models.DecimalField(max_digits=12, decimal_places=6, null=True, blank=True)
+    currency = models.CharField(max_length=3, null=True, blank=True)
+    
     def __str__(self):
         return f"{self.title} - {self.amount} ({self.group.name})"
 

@@ -8,6 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework import serializers
 
 from api.core.utils import DotsValidationError
+from api.core.services.currency_service import get_exchange_rates
 
 from api.expenses.models import Expense, ExpenseSplit, ExpenseItem
 from api.groups.models import Group, GroupMember
@@ -164,6 +165,20 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         group_members = validated_data.pop("_group_members", {})
         validated_data["created_by"] = self.context["request"].user
         
+        rates = get_exchange_rates()
+
+        group_currency = expense.group.currency
+
+        if group_currency == "USD":
+            expense.amount_usd = expense.amount
+        else:
+            rate = rates.get(group_currency)
+
+            if rate:
+                expense.amount_usd = expense.amount / Decimal(str(rate))
+
+        expense.save(update_fields=["amount_usd"])
+
         expense = Expense.objects.create(**validated_data)
 
         if expense.split_type == Expense.SplitType.ITEMIZED:
@@ -398,6 +413,13 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         items_ops = validated_data.pop("_items_ops", None)
         old_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
         validated_data.pop("items", None)
+
+        if "amount" in validated_data:
+            amount = validated_data.get("amount", instance.amount)
+            rate = instance.exchange_rate
+            instance.amount = amount
+            instance.amount_usd = amount / rate
+            instance.save()
 
         old_amount = instance.amount
         old_split_type = instance.split_type

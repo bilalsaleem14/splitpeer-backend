@@ -23,8 +23,17 @@ class GroupSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Group
-        fields = ["id", "created_by", "name", "description", "thumbnail", "members_count", "total_expenses", "member_profile_pictures"]
+        fields = ["id", "created_by", "name", "description", "thumbnail", "currency", "members_count", "total_expenses", "member_profile_pictures"]
     
+    def validate_currency(self, value):
+
+        supported = ["USD", "PKR", "AED", "EUR", "GBP"]
+
+        if value not in supported:
+            raise serializers.ValidationError("Unsupported currency")
+
+        return value
+
     def get_members_count(self, obj):
         return getattr(obj, "members_count_annotated", 0)
 
@@ -42,7 +51,7 @@ class GroupCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ["name", "description", "thumbnail"]
+        fields = ["name", "description", "thumbnail", "currency"]
     
     def create(self, validated_data):
         validated_data["created_by"] = self.context["request"].user
