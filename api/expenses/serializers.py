@@ -8,7 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework import serializers
 
 from api.core.utils import DotsValidationError
-from api.core.services.currency_service import get_exchange_rates
+from api.core.services.currency_service import CurrencyService
 
 from api.expenses.models import Expense, ExpenseSplit, ExpenseItem
 from api.groups.models import Group, GroupMember
@@ -47,8 +47,9 @@ class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
         fields = [
-            "id", "group", "title", "amount", "paid_by", "category", "notes",
-            "split_type", "splits", "items", "created_by", "created_at", "updated_at"
+            "id", "group", "title", "amount", "currency", "amount_usd", "exchange_rate",
+            "paid_by", "category", "notes", "split_type", "splits", "items",
+            "created_by", "created_at", "updated_at",
         ]
 
 
@@ -164,22 +165,24 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         items_data = validated_data.pop("items", [])
         group_members = validated_data.pop("_group_members", {})
         validated_data["created_by"] = self.context["request"].user
-        
-        rates = get_exchange_rates()
+
+        expense = Expense.objects.create(**validated_data)
 
         group_currency = expense.group.currency
+        expense.currency = group_currency
 
         if group_currency == "USD":
             expense.amount_usd = expense.amount
+            expense.exchange_rate = Decimal("1")
         else:
-            rate = rates.get(group_currency)
+            try:
+                usd_amount, rate = CurrencyService.convert_to_usd(expense.amount, group_currency)
+                expense.amount_usd = usd_amount
+                expense.exchange_rate = rate
+            except Exception:
+                pass
 
-            if rate:
-                expense.amount_usd = expense.amount / Decimal(str(rate))
-
-        expense.save(update_fields=["amount_usd"])
-
-        expense = Expense.objects.create(**validated_data)
+        expense.save(update_fields=["amount_usd", "exchange_rate", "currency"])
 
         if expense.split_type == Expense.SplitType.ITEMIZED:
             for item in items_data:
