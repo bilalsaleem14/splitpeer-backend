@@ -9,6 +9,7 @@ from api.core.validators import validate_image
 
 from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
+from api.currency.models import CurrencyDropDown
 
 from api.users.serializers import ShortUserSerializer, ImageSerializer
 
@@ -26,12 +27,8 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ["id", "created_by", "name", "description", "thumbnail", "currency", "members_count", "total_expenses", "member_profile_pictures"]
     
     def validate_currency(self, value):
-
-        supported = ["USD", "PKR", "AED", "EUR", "GBP"]
-
-        if value not in supported:
+        if not CurrencyDropDown.objects.filter(code=value).exists():
             raise serializers.ValidationError("Unsupported currency")
-
         return value
 
     def get_members_count(self, obj):
@@ -52,6 +49,11 @@ class GroupCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ["name", "description", "thumbnail", "currency"]
+
+    def validate_currency(self, value):
+        if not CurrencyDropDown.objects.filter(code=value).exists():
+            raise serializers.ValidationError("Unsupported currency")
+        return value
     
     def create(self, validated_data):
         validated_data["created_by"] = self.context["request"].user
@@ -60,6 +62,11 @@ class GroupCreateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if self.context["request"].user != instance.created_by:
             raise DotsValidationError({"error": "You do not have permission to update this group."})
+
+        
+        if "currency" in validated_data:
+            raise DotsValidationError({"error": "Group currency cannot be updated."})
+
         return super().update(instance, validated_data)
 
 

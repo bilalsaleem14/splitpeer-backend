@@ -6,7 +6,6 @@ from decimal import Decimal
 from api.currency.models import CurrencyRate
 
 
-SUPPORTED_CURRENCIES = {"PKR", "AED", "EUR", "GBP"}
 EXCHANGE_RATE_API_URL = "https://open.er-api.com/v6/latest/USD"
 
 
@@ -57,13 +56,14 @@ class CurrencyService:
         today = date.today()
         created = updated = 0
 
-        for currency in SUPPORTED_CURRENCIES:
-            rate_value = rates.get(currency)
+        # Store all currencies returned by the API so the group dropdown can support
+        # any selected currency code (not just a small hardcoded set).
+        for currency, rate_value in rates.items():
             if rate_value is None:
                 continue
 
             _, was_created = CurrencyRate.objects.update_or_create(
-                currency=currency,
+                currency=str(currency),
                 date=today,
                 defaults={
                     "base_currency": "USD",

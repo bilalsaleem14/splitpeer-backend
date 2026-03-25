@@ -5,20 +5,13 @@ from api.core.models import BaseModel, CharFieldSizes
 
 
 User = get_user_model()
-CURRENCY_CHOICES = [
-    ("USD", "USD"),
-    ("PKR", "PKR"),
-    ("AED", "AED"),
-    ("EUR", "EUR"),
-    ("GBP", "GBP"),
-]
 
 class Group(BaseModel):
     created_by = models.ForeignKey(User, related_name="group_created_by", on_delete=models.CASCADE)
     name = models.CharField(max_length=CharFieldSizes.SMALL)
     description = models.TextField()
     thumbnail = models.ImageField(upload_to="group_thumbnails")
-    currency = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default="USD")
+    currency = models.CharField(max_length=10, default="USD")
 
 
     def __str__(self):
