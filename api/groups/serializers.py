@@ -7,6 +7,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from api.core.utils import DotsValidationError
 from api.core.validators import validate_image
 
+from api.currency.serializers import CurrencyDropDownSerializer
 from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
 from api.currency.models import CurrencyDropDown
@@ -21,7 +22,8 @@ class GroupSerializer(serializers.ModelSerializer):
     members_count = serializers.SerializerMethodField()
     total_expenses = serializers.SerializerMethodField()
     member_profile_pictures = serializers.SerializerMethodField()
-    
+    currency = CurrencyDropDownSerializer(read_only=True)
+
     class Meta:
         model = Group
         fields = ["id", "created_by", "name", "description", "thumbnail", "currency", "members_count", "total_expenses", "member_profile_pictures"]
@@ -44,26 +46,33 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class GroupCreateSerializer(serializers.ModelSerializer):
+
     thumbnail = serializers.ImageField(validators=[validate_image()])
+
+    currency = serializers.CharField(write_only=True)
 
     class Meta:
         model = Group
         fields = ["name", "description", "thumbnail", "currency"]
 
     def validate_currency(self, value):
-        if not CurrencyDropDown.objects.filter(code=value).exists():
+        try:
+            return CurrencyDropDown.objects.get(code=value)
+        except CurrencyDropDown.DoesNotExist:
             raise serializers.ValidationError("Unsupported currency")
-        return value
-    
+
     def create(self, validated_data):
+        currency = validated_data.pop("currency")
+
+        validated_data["currency"] = currency
         validated_data["created_by"] = self.context["request"].user
+
         return super().create(validated_data)
-    
+
     def update(self, instance, validated_data):
         if self.context["request"].user != instance.created_by:
             raise DotsValidationError({"error": "You do not have permission to update this group."})
 
-        
         if "currency" in validated_data:
             raise DotsValidationError({"error": "Group currency cannot be updated."})
 
