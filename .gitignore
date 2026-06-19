@@ -159,7 +159,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-/.vscode
 /media/*
 !/media/default.png
 !/media/default_group_thumbnail.jpg
@@ -167,3 +166,5 @@ cython_debug/
 /static_files
 /.idea
 .secrets
+temp_auto_push.bat
+temp_interactive_push.bat
