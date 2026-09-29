@@ -1,0 +1,1828 @@
+[
+  {
+    "model": "currency.currencydropdown",
+    "pk": 1,
+    "fields": {
+      "fullname": "US Dollar",
+      "code": "USD",
+      "symbol": "$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 2,
+    "fields": {
+      "fullname": "United Arab Emirates Dirham",
+      "code": "AED",
+      "symbol": "د.إ",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 3,
+    "fields": {
+      "fullname": "Afghan Afghani",
+      "code": "AFN",
+      "symbol": "؋",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 4,
+    "fields": {
+      "fullname": "Albanian Lek",
+      "code": "ALL",
+      "symbol": "L",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 5,
+    "fields": {
+      "fullname": "Armenian Dram",
+      "code": "AMD",
+      "symbol": "֏",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 6,
+    "fields": {
+      "fullname": "Netherlands Antillean Guilder",
+      "code": "ANG",
+      "symbol": "ƒ",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 7,
+    "fields": {
+      "fullname": "Angolan Kwanza",
+      "code": "AOA",
+      "symbol": "Kz",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 8,
+    "fields": {
+      "fullname": "Argentine Peso",
+      "code": "ARS",
+      "symbol": "$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 9,
+    "fields": {
+      "fullname": "Australian Dollar",
+      "code": "AUD",
+      "symbol": "A$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 10,
+    "fields": {
+      "fullname": "Aruban Florin",
+      "code": "AWG",
+      "symbol": "ƒ",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 11,
+    "fields": {
+      "fullname": "Azerbaijani Manat",
+      "code": "AZN",
+      "symbol": "₼",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 12,
+    "fields": {
+      "fullname": "Bosnia-Herzegovina Convertible Mark",
+      "code": "BAM",
+      "symbol": "KM",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 13,
+    "fields": {
+      "fullname": "Barbadian Dollar",
+      "code": "BBD",
+      "symbol": "Bds$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 14,
+    "fields": {
+      "fullname": "Bangladeshi Taka",
+      "code": "BDT",
+      "symbol": "৳",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 15,
+    "fields": {
+      "fullname": "Bulgarian Lev",
+      "code": "BGN",
+      "symbol": "лв",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 16,
+    "fields": {
+      "fullname": "Bahraini Dinar",
+      "code": "BHD",
+      "symbol": ".د.ب",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 17,
+    "fields": {
+      "fullname": "Burundian Franc",
+      "code": "BIF",
+      "symbol": "FBu",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 18,
+    "fields": {
+      "fullname": "Bermudan Dollar",
+      "code": "BMD",
+      "symbol": "$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 19,
+    "fields": {
+      "fullname": "Brunei Dollar",
+      "code": "BND",
+      "symbol": "B$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 20,
+    "fields": {
+      "fullname": "Bolivian Boliviano",
+      "code": "BOB",
+      "symbol": "Bs.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 21,
+    "fields": {
+      "fullname": "Brazilian Real",
+      "code": "BRL",
+      "symbol": "R$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 22,
+    "fields": {
+      "fullname": "Bahamian Dollar",
+      "code": "BSD",
+      "symbol": "B$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 23,
+    "fields": {
+      "fullname": "Bhutanese Ngultrum",
+      "code": "BTN",
+      "symbol": "Nu.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 24,
+    "fields": {
+      "fullname": "Botswanan Pula",
+      "code": "BWP",
+      "symbol": "P",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 25,
+    "fields": {
+      "fullname": "Belarusian Ruble",
+      "code": "BYN",
+      "symbol": "Br",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 26,
+    "fields": {
+      "fullname": "Belize Dollar",
+      "code": "BZD",
+      "symbol": "BZ$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 27,
+    "fields": {
+      "fullname": "Canadian Dollar",
+      "code": "CAD",
+      "symbol": "C$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 28,
+    "fields": {
+      "fullname": "Congolese Franc",
+      "code": "CDF",
+      "symbol": "FC",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 29,
+    "fields": {
+      "fullname": "Swiss Franc",
+      "code": "CHF",
+      "symbol": "CHF",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 30,
+    "fields": {
+      "fullname": "Chilean Unit of Account (UF)",
+      "code": "CLF",
+      "symbol": "UF",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 31,
+    "fields": {
+      "fullname": "Chilean Peso",
+      "code": "CLP",
+      "symbol": "CLP$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 32,
+    "fields": {
+      "fullname": "Chinese Yuan (offshore)",
+      "code": "CNH",
+      "symbol": "¥",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 33,
+    "fields": {
+      "fullname": "Chinese Yuan",
+      "code": "CNY",
+      "symbol": "¥",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 34,
+    "fields": {
+      "fullname": "Colombian Peso",
+      "code": "COP",
+      "symbol": "COL$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 35,
+    "fields": {
+      "fullname": "Costa Rican Colón",
+      "code": "CRC",
+      "symbol": "₡",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 36,
+    "fields": {
+      "fullname": "Cuban Peso",
+      "code": "CUP",
+      "symbol": "₱",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 37,
+    "fields": {
+      "fullname": "Cape Verdean Escudo",
+      "code": "CVE",
+      "symbol": "$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 38,
+    "fields": {
+      "fullname": "Czech Koruna",
+      "code": "CZK",
+      "symbol": "Kč",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 39,
+    "fields": {
+      "fullname": "Djiboutian Franc",
+      "code": "DJF",
+      "symbol": "Fdj",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 40,
+    "fields": {
+      "fullname": "Danish Krone",
+      "code": "DKK",
+      "symbol": "kr",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 41,
+    "fields": {
+      "fullname": "Dominican Peso",
+      "code": "DOP",
+      "symbol": "RD$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 42,
+    "fields": {
+      "fullname": "Algerian Dinar",
+      "code": "DZD",
+      "symbol": "دج",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 43,
+    "fields": {
+      "fullname": "Egyptian Pound",
+      "code": "EGP",
+      "symbol": "E£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 44,
+    "fields": {
+      "fullname": "Eritrean Nakfa",
+      "code": "ERN",
+      "symbol": "Nfk",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 45,
+    "fields": {
+      "fullname": "Ethiopian Birr",
+      "code": "ETB",
+      "symbol": "Br",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 46,
+    "fields": {
+      "fullname": "Euro",
+      "code": "EUR",
+      "symbol": "€",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 47,
+    "fields": {
+      "fullname": "Fijian Dollar",
+      "code": "FJD",
+      "symbol": "FJ$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 48,
+    "fields": {
+      "fullname": "Falkland Islands Pound",
+      "code": "FKP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 49,
+    "fields": {
+      "fullname": "Faroese krona",
+      "code": "FOK",
+      "symbol": "kr",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 50,
+    "fields": {
+      "fullname": "British Pound",
+      "code": "GBP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 51,
+    "fields": {
+      "fullname": "Georgian Lari",
+      "code": "GEL",
+      "symbol": "₾",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 52,
+    "fields": {
+      "fullname": "Guernsey Pound",
+      "code": "GGP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 53,
+    "fields": {
+      "fullname": "Ghanaian Cedi",
+      "code": "GHS",
+      "symbol": "₵",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 54,
+    "fields": {
+      "fullname": "Gibraltar Pound",
+      "code": "GIP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 55,
+    "fields": {
+      "fullname": "Gambian Dalasi",
+      "code": "GMD",
+      "symbol": "D",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 56,
+    "fields": {
+      "fullname": "Guinean Franc",
+      "code": "GNF",
+      "symbol": "FG",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 57,
+    "fields": {
+      "fullname": "Guatemalan Quetzal",
+      "code": "GTQ",
+      "symbol": "Q",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 58,
+    "fields": {
+      "fullname": "Guyanaese Dollar",
+      "code": "GYD",
+      "symbol": "G$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 59,
+    "fields": {
+      "fullname": "Hong Kong Dollar",
+      "code": "HKD",
+      "symbol": "HK$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 60,
+    "fields": {
+      "fullname": "Honduran Lempira",
+      "code": "HNL",
+      "symbol": "L",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 61,
+    "fields": {
+      "fullname": "Croatian Kuna",
+      "code": "HRK",
+      "symbol": "€",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 62,
+    "fields": {
+      "fullname": "Haitian Gourde",
+      "code": "HTG",
+      "symbol": "G",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 63,
+    "fields": {
+      "fullname": "Hungarian Forint",
+      "code": "HUF",
+      "symbol": "Ft",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 64,
+    "fields": {
+      "fullname": "Indonesian Rupiah",
+      "code": "IDR",
+      "symbol": "Rp",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 65,
+    "fields": {
+      "fullname": "Israeli New Shekel",
+      "code": "ILS",
+      "symbol": "₪",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 66,
+    "fields": {
+      "fullname": "Manx pound",
+      "code": "IMP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 67,
+    "fields": {
+      "fullname": "Indian Rupee",
+      "code": "INR",
+      "symbol": "₹",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 68,
+    "fields": {
+      "fullname": "Iraqi Dinar",
+      "code": "IQD",
+      "symbol": "ع.د",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 69,
+    "fields": {
+      "fullname": "Iranian Rial",
+      "code": "IRR",
+      "symbol": "﷼",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 70,
+    "fields": {
+      "fullname": "Icelandic Króna",
+      "code": "ISK",
+      "symbol": "kr",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 71,
+    "fields": {
+      "fullname": "Jersey Pound",
+      "code": "JEP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 72,
+    "fields": {
+      "fullname": "Jamaican Dollar",
+      "code": "JMD",
+      "symbol": "J$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 73,
+    "fields": {
+      "fullname": "Jordanian Dinar",
+      "code": "JOD",
+      "symbol": "JD",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 74,
+    "fields": {
+      "fullname": "Japanese Yen",
+      "code": "JPY",
+      "symbol": "¥",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 75,
+    "fields": {
+      "fullname": "Kenyan Shilling",
+      "code": "KES",
+      "symbol": "KSh",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 76,
+    "fields": {
+      "fullname": "Kyrgyz Som",
+      "code": "KGS",
+      "symbol": "сом",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 77,
+    "fields": {
+      "fullname": "Cambodian Riel",
+      "code": "KHR",
+      "symbol": "៛",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 78,
+    "fields": {
+      "fullname": "Kiribati dollar",
+      "code": "KID",
+      "symbol": "$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 79,
+    "fields": {
+      "fullname": "Comorian Franc",
+      "code": "KMF",
+      "symbol": "CF",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 80,
+    "fields": {
+      "fullname": "South Korean Won",
+      "code": "KRW",
+      "symbol": "₩",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 81,
+    "fields": {
+      "fullname": "Kuwaiti Dinar",
+      "code": "KWD",
+      "symbol": "KD",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 82,
+    "fields": {
+      "fullname": "Cayman Islands Dollar",
+      "code": "KYD",
+      "symbol": "CI$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 83,
+    "fields": {
+      "fullname": "Kazakhstani Tenge",
+      "code": "KZT",
+      "symbol": "₸",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 84,
+    "fields": {
+      "fullname": "Laotian Kip",
+      "code": "LAK",
+      "symbol": "₭",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 85,
+    "fields": {
+      "fullname": "Lebanese Pound",
+      "code": "LBP",
+      "symbol": "ل.ل",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 86,
+    "fields": {
+      "fullname": "Sri Lankan Rupee",
+      "code": "LKR",
+      "symbol": "Rs",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 87,
+    "fields": {
+      "fullname": "Liberian Dollar",
+      "code": "LRD",
+      "symbol": "L$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 88,
+    "fields": {
+      "fullname": "Lesotho Loti",
+      "code": "LSL",
+      "symbol": "L",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 89,
+    "fields": {
+      "fullname": "Libyan Dinar",
+      "code": "LYD",
+      "symbol": "ل.د",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 90,
+    "fields": {
+      "fullname": "Moroccan Dirham",
+      "code": "MAD",
+      "symbol": "د.م.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 91,
+    "fields": {
+      "fullname": "Moldovan Leu",
+      "code": "MDL",
+      "symbol": "L",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 92,
+    "fields": {
+      "fullname": "Malagasy Ariary",
+      "code": "MGA",
+      "symbol": "Ar",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 93,
+    "fields": {
+      "fullname": "Macedonian Denar",
+      "code": "MKD",
+      "symbol": "ден",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 94,
+    "fields": {
+      "fullname": "Myanmar Kyat",
+      "code": "MMK",
+      "symbol": "Ks",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 95,
+    "fields": {
+      "fullname": "Mongolian Tugrik",
+      "code": "MNT",
+      "symbol": "₮",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 96,
+    "fields": {
+      "fullname": "Macanese Pataca",
+      "code": "MOP",
+      "symbol": "MOP$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 97,
+    "fields": {
+      "fullname": "Mauritanian Ouguiya",
+      "code": "MRU",
+      "symbol": "UM",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 98,
+    "fields": {
+      "fullname": "Mauritian Rupee",
+      "code": "MUR",
+      "symbol": "₨",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 99,
+    "fields": {
+      "fullname": "Maldivian Rufiyaa",
+      "code": "MVR",
+      "symbol": "Rf",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 100,
+    "fields": {
+      "fullname": "Malawian Kwacha",
+      "code": "MWK",
+      "symbol": "MK",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 101,
+    "fields": {
+      "fullname": "Mexican Peso",
+      "code": "MXN",
+      "symbol": "MX$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 102,
+    "fields": {
+      "fullname": "Malaysian Ringgit",
+      "code": "MYR",
+      "symbol": "RM",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 103,
+    "fields": {
+      "fullname": "Mozambican Metical",
+      "code": "MZN",
+      "symbol": "MT",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 104,
+    "fields": {
+      "fullname": "Namibian Dollar",
+      "code": "NAD",
+      "symbol": "N$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 105,
+    "fields": {
+      "fullname": "Nigerian Naira",
+      "code": "NGN",
+      "symbol": "₦",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 106,
+    "fields": {
+      "fullname": "Nicaraguan Córdoba",
+      "code": "NIO",
+      "symbol": "C$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 107,
+    "fields": {
+      "fullname": "Norwegian Krone",
+      "code": "NOK",
+      "symbol": "kr",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 108,
+    "fields": {
+      "fullname": "Nepalese Rupee",
+      "code": "NPR",
+      "symbol": "रू",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 109,
+    "fields": {
+      "fullname": "New Zealand Dollar",
+      "code": "NZD",
+      "symbol": "NZ$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 110,
+    "fields": {
+      "fullname": "Omani Rial",
+      "code": "OMR",
+      "symbol": "ر.ع.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 111,
+    "fields": {
+      "fullname": "Panamanian Balboa",
+      "code": "PAB",
+      "symbol": "B/.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 112,
+    "fields": {
+      "fullname": "Peruvian Sol",
+      "code": "PEN",
+      "symbol": "S/",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 113,
+    "fields": {
+      "fullname": "Papua New Guinean Kina",
+      "code": "PGK",
+      "symbol": "K",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 114,
+    "fields": {
+      "fullname": "Philippine Peso",
+      "code": "PHP",
+      "symbol": "₱",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 115,
+    "fields": {
+      "fullname": "Pakistani Rupee",
+      "code": "PKR",
+      "symbol": "₨",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 116,
+    "fields": {
+      "fullname": "Polish Zloty",
+      "code": "PLN",
+      "symbol": "zł",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 117,
+    "fields": {
+      "fullname": "Paraguayan Guarani",
+      "code": "PYG",
+      "symbol": "₲",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 118,
+    "fields": {
+      "fullname": "Qatari Riyal",
+      "code": "QAR",
+      "symbol": "ر.ق",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 119,
+    "fields": {
+      "fullname": "Romanian Leu",
+      "code": "RON",
+      "symbol": "lei",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 120,
+    "fields": {
+      "fullname": "Serbian Dinar",
+      "code": "RSD",
+      "symbol": "дин.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 121,
+    "fields": {
+      "fullname": "Russian Ruble",
+      "code": "RUB",
+      "symbol": "₽",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 122,
+    "fields": {
+      "fullname": "Rwandan Franc",
+      "code": "RWF",
+      "symbol": "FRw",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 123,
+    "fields": {
+      "fullname": "Saudi Riyal",
+      "code": "SAR",
+      "symbol": "ر.س",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 124,
+    "fields": {
+      "fullname": "Solomon Islands Dollar",
+      "code": "SBD",
+      "symbol": "SI$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 125,
+    "fields": {
+      "fullname": "Seychellois Rupee",
+      "code": "SCR",
+      "symbol": "₨",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 126,
+    "fields": {
+      "fullname": "Sudanese Pound",
+      "code": "SDG",
+      "symbol": "ج.س.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 127,
+    "fields": {
+      "fullname": "Swedish Krona",
+      "code": "SEK",
+      "symbol": "kr",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 128,
+    "fields": {
+      "fullname": "Singapore Dollar",
+      "code": "SGD",
+      "symbol": "S$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 129,
+    "fields": {
+      "fullname": "St. Helena Pound",
+      "code": "SHP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 130,
+    "fields": {
+      "fullname": "Sierra Leonean leone",
+      "code": "SLE",
+      "symbol": "Le",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 131,
+    "fields": {
+      "fullname": "Sierra Leonean leone (old)",
+      "code": "SLL",
+      "symbol": "Le",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 132,
+    "fields": {
+      "fullname": "Somali Shilling",
+      "code": "SOS",
+      "symbol": "Sh",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 133,
+    "fields": {
+      "fullname": "Surinamese Dollar",
+      "code": "SRD",
+      "symbol": "Sr$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 134,
+    "fields": {
+      "fullname": "South Sudanese Pound",
+      "code": "SSP",
+      "symbol": "£",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 135,
+    "fields": {
+      "fullname": "São Tomé & Príncipe Dobra",
+      "code": "STN",
+      "symbol": "Db",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 136,
+    "fields": {
+      "fullname": "Syrian Pound",
+      "code": "SYP",
+      "symbol": "£S",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 137,
+    "fields": {
+      "fullname": "Swazi Lilangeni",
+      "code": "SZL",
+      "symbol": "L",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 138,
+    "fields": {
+      "fullname": "Thai Baht",
+      "code": "THB",
+      "symbol": "฿",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 139,
+    "fields": {
+      "fullname": "Tajikistani Somoni",
+      "code": "TJS",
+      "symbol": "ЅМ",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 140,
+    "fields": {
+      "fullname": "Turkmenistani Manat",
+      "code": "TMT",
+      "symbol": "m",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 141,
+    "fields": {
+      "fullname": "Tunisian Dinar",
+      "code": "TND",
+      "symbol": "د.ت",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 142,
+    "fields": {
+      "fullname": "Tongan Paʻanga",
+      "code": "TOP",
+      "symbol": "T$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 143,
+    "fields": {
+      "fullname": "Turkish Lira",
+      "code": "TRY",
+      "symbol": "₺",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 144,
+    "fields": {
+      "fullname": "Trinidad & Tobago Dollar",
+      "code": "TTD",
+      "symbol": "TT$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 145,
+    "fields": {
+      "fullname": "Tuvaluan dollar",
+      "code": "TVD",
+      "symbol": "TV$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 146,
+    "fields": {
+      "fullname": "New Taiwan Dollar",
+      "code": "TWD",
+      "symbol": "NT$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 147,
+    "fields": {
+      "fullname": "Tanzanian Shilling",
+      "code": "TZS",
+      "symbol": "Sh",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 148,
+    "fields": {
+      "fullname": "Ukrainian Hryvnia",
+      "code": "UAH",
+      "symbol": "₴",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 149,
+    "fields": {
+      "fullname": "Ugandan Shilling",
+      "code": "UGX",
+      "symbol": "USh",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 150,
+    "fields": {
+      "fullname": "Uruguayan Peso",
+      "code": "UYU",
+      "symbol": "UYU",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 151,
+    "fields": {
+      "fullname": "Uzbekistani Som",
+      "code": "UZS",
+      "symbol": "soʻm",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 152,
+    "fields": {
+      "fullname": "Venezuelan Bolívar",
+      "code": "VES",
+      "symbol": "Bs.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 153,
+    "fields": {
+      "fullname": "Vietnamese Dong",
+      "code": "VND",
+      "symbol": "₫",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 154,
+    "fields": {
+      "fullname": "Vanuatu Vatu",
+      "code": "VUV",
+      "symbol": "VT",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 155,
+    "fields": {
+      "fullname": "Samoan Tala",
+      "code": "WST",
+      "symbol": "WS$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 156,
+    "fields": {
+      "fullname": "Central African CFA Franc",
+      "code": "XAF",
+      "symbol": "FCFA",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 157,
+    "fields": {
+      "fullname": "East Caribbean Dollar",
+      "code": "XCD",
+      "symbol": "EC$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 158,
+    "fields": {
+      "fullname": "Caribbean guilder",
+      "code": "XCG",
+      "symbol": "Cg.",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 159,
+    "fields": {
+      "fullname": "Special Drawing Rights",
+      "code": "XDR",
+      "symbol": "SDR",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 160,
+    "fields": {
+      "fullname": "West African CFA Franc",
+      "code": "XOF",
+      "symbol": "CFA",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 161,
+    "fields": {
+      "fullname": "CFP Franc",
+      "code": "XPF",
+      "symbol": "CFP",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 162,
+    "fields": {
+      "fullname": "Yemeni Rial",
+      "code": "YER",
+      "symbol": "﷼",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 163,
+    "fields": {
+      "fullname": "South African Rand",
+      "code": "ZAR",
+      "symbol": "R",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 164,
+    "fields": {
+      "fullname": "Zambian Kwacha",
+      "code": "ZMW",
+      "symbol": "ZK",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 165,
+    "fields": {
+      "fullname": "Zimbabwe Gold",
+      "code": "ZWG",
+      "symbol": "ZiG",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  },
+  {
+    "model": "currency.currencydropdown",
+    "pk": 166,
+    "fields": {
+      "fullname": "Zimbabwean Dollar (2009–2024)",
+      "code": "ZWL",
+      "symbol": "Z$",
+      "created_at": "2026-03-24T00:00:00Z",
+      "updated_at": "2026-03-24T00:00:00Z"
+    }
+  }
+]

@@ -76,6 +76,7 @@ THIRD_PARTY_APPS = [
     "api.categories",
     "api.expenses",
     "api.activities",
+    "api.currency",
     "api.sync",
 ]
 
@@ -233,6 +234,30 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
 EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
 EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD")
+
+# Celery
+CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env.str("CELERY_RESULT_BACKEND", default="redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+# Currency rate fetch schedule (UTC). Defaults to 00:00 daily.
+GET_CURRENCY_HOUR = env.int("GET_CURRENCY_HOUR", default=0)
+GET_CURRENCY_MINUTE = env.int("GET_CURRENCY_MINUTE", default=0)
+
+# Celery
+CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env.str("CELERY_RESULT_BACKEND", default="redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+# Currency rate fetch schedule (UTC). Defaults to 00:00 daily.
+GET_CURRENCY_HOUR = env.int("GET_CURRENCY_HOUR", default=0)
+GET_CURRENCY_MINUTE = env.int("GET_CURRENCY_MINUTE", default=0)
 
 
 temporary_password = env.str("TEMPORARY_PASSWORD")

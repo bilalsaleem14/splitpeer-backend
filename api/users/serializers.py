@@ -1,6 +1,7 @@
 from decimal import Decimal
 
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, F, DecimalField, ExpressionWrapper
+from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
@@ -13,6 +14,14 @@ from api.expenses.models import ExpenseSplit
 from api.categories.models import Category
 
 from api.users.utils import get_month_boundaries
+
+
+def _usd_amount_expression():
+    """Annotate each split with its USD-equivalent share using the stored exchange rate."""
+    return ExpressionWrapper(
+        F("amount") / Coalesce(F("expense__exchange_rate"), Decimal("1")),
+        output_field=DecimalField(max_digits=12, decimal_places=4),
+    )
 
 
 User = get_user_model()
@@ -55,8 +64,18 @@ class DashboardStatisticsSerializer(serializers.Serializer):
     def calculate_statistics(self, user, date=None):
         month_start, today_end = get_month_boundaries(date)
         days_passed = (today_end.date() - month_start.date()).days + 1
-        
-        total_expense = ExpenseSplit.objects.filter(Q(participant__user=user) & Q(is_included=True) & Q(expense__created_at__gte=month_start) & Q(expense__created_at__lte=today_end)).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+
+        total_expense = (
+            ExpenseSplit.objects.filter(
+                Q(participant__user=user)
+                & Q(is_included=True)
+                & Q(expense__created_at__gte=month_start)
+                & Q(expense__created_at__lte=today_end)
+            )
+            .annotate(usd_amount=_usd_amount_expression())
+            .aggregate(total=Sum("usd_amount"))["total"]
+            or Decimal("0.00")
+        )
         daily_average = total_expense / Decimal(days_passed) if days_passed > 0 else Decimal("0.00")
         
         return {
@@ -97,9 +116,19 @@ class DashboardSpendingPatternSerializer(serializers.Serializer):
         if date_lte:
             filters &= Q(expense__created_at__lte=date_lte)
         
-        spending_by_category = ExpenseSplit.objects.filter(filters).values("expense__category__id").annotate(total_amount=Sum("amount"))
+        spending_by_category = (
+            ExpenseSplit.objects.filter(filters)
+            .annotate(usd_amount=_usd_amount_expression())
+            .values("expense__category__id")
+            .annotate(total_amount=Sum("usd_amount"))
+        )
         spending_dict = {item["expense__category__id"]: item["total_amount"] or Decimal("0.00") for item in spending_by_category}
-        uncategorized_spending = ExpenseSplit.objects.filter(filters & Q(expense__category__isnull=True)).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+        uncategorized_spending = (
+            ExpenseSplit.objects.filter(filters & Q(expense__category__isnull=True))
+            .annotate(usd_amount=_usd_amount_expression())
+            .aggregate(total=Sum("usd_amount"))["total"]
+            or Decimal("0.00")
+        )
         
         data = []
         total_spending = Decimal("0.00")

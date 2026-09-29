@@ -8,6 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework import serializers
 
 from api.core.utils import DotsValidationError
+from api.core.services.currency_service import CurrencyService
 
 from api.expenses.models import Expense, ExpenseSplit, ExpenseItem
 from api.groups.models import Group, GroupMember
@@ -46,8 +47,9 @@ class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
         fields = [
-            "id", "group", "title", "amount", "paid_by", "category", "notes",
-            "split_type", "splits", "items", "created_by", "created_at", "updated_at"
+            "id", "group", "title", "amount", "currency", "amount_usd", "exchange_rate",
+            "paid_by", "category", "notes", "split_type", "splits", "items",
+            "created_by", "created_at", "updated_at",
         ]
 
 
@@ -163,8 +165,24 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         items_data = validated_data.pop("items", [])
         group_members = validated_data.pop("_group_members", {})
         validated_data["created_by"] = self.context["request"].user
-        
+
         expense = Expense.objects.create(**validated_data)
+
+        group_currency = expense.group.currency
+        expense.currency = group_currency.code
+
+        if group_currency == "USD":
+            expense.amount_usd = expense.amount
+            expense.exchange_rate = Decimal("1")
+        else:
+            try:
+                usd_amount, rate = CurrencyService.convert_to_usd(expense.amount, group_currency)
+                expense.amount_usd = usd_amount
+                expense.exchange_rate = rate
+            except Exception:
+                pass
+
+        expense.save(update_fields=["amount_usd", "exchange_rate", "currency"])
 
         if expense.split_type == Expense.SplitType.ITEMIZED:
             for item in items_data:
@@ -398,6 +416,13 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         items_ops = validated_data.pop("_items_ops", None)
         old_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
         validated_data.pop("items", None)
+
+        if "amount" in validated_data:
+            amount = validated_data.get("amount", instance.amount)
+            rate = instance.exchange_rate
+            instance.amount = amount
+            instance.amount_usd = amount / rate
+            instance.save()
 
         old_amount = instance.amount
         old_split_type = instance.split_type

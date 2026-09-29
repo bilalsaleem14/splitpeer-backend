@@ -2,10 +2,10 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from api.core.models import BaseModel, CharFieldSizes
+from api.currency.models import CurrencyDropDown
 
 
 User = get_user_model()
-
 
 class Group(BaseModel):
     client_id = models.CharField(max_length=100, unique=True, null=True, blank=True) 
@@ -13,6 +13,8 @@ class Group(BaseModel):
     name = models.CharField(max_length=CharFieldSizes.SMALL)
     description = models.TextField()
     thumbnail = models.ImageField(upload_to="group_thumbnails", default="default_group_thumbnail.jpg")
+    currency = models.ForeignKey(CurrencyDropDown, on_delete=models.PROTECT,related_name="groups")
+
 
     def __str__(self):
         return f"{self.name} -> {self.created_by}"
