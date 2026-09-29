@@ -176,7 +176,7 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
             expense.exchange_rate = Decimal("1")
         else:
             try:
-                usd_amount, rate = CurrencyService.convert_to_usd(expense.amount, group_currency)
+                usd_amount, rate = CurrencyService.convert_to_usd(expense.amount, group_currency.code)
                 expense.amount_usd = usd_amount
                 expense.exchange_rate = rate
             except Exception:
