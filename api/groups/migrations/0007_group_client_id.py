@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('expenses', '0003_expenseitem'),
+        ('groups', '0006_alter_group_currency'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='expense',
+            model_name='group',
             name='client_id',
             field=models.CharField(blank=True, max_length=100, null=True, unique=True),
         ),
