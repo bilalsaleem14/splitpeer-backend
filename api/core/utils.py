@@ -1,6 +1,8 @@
 from django.test import RequestFactory
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from rest_framework import status
 from rest_framework.exceptions import APIException, _get_error_details
@@ -68,6 +70,11 @@ def get_or_create_user_by_email(email, create_placeholder=True):
     User = get_user_model()
     email = email.lower().strip()
 
+    try:
+        validate_email(email)
+    except DjangoValidationError:
+        raise DotsValidationError({"email": ["Enter a valid email address."]})
+
     user = User.objects.filter(email__iexact=email).first()
     if not user and create_placeholder:
         user = User.objects.create(
@@ -76,4 +83,4 @@ def get_or_create_user_by_email(email, create_placeholder=True):
             is_active=False,
             is_invited_user=True
         )
-    return user
+    return user

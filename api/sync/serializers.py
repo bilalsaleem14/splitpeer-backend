@@ -21,6 +21,30 @@ class UnsyncGroupSerializer(serializers.Serializer):
     description = serializers.CharField(required=False, allow_blank=True)
     thumbnail = serializers.ImageField(required=False)
     members = serializers.ListField(child=serializers.EmailField())
+    currency = serializers.CharField(write_only=True)
+
+
+class UnsyncExpenseItemSerializer(serializers.Serializer):
+    """Serializer for unsync expense item data"""
+    title = serializers.CharField(max_length=100, required=True)
+    amount = serializers.DecimalField(max_digits=9, decimal_places=2, required=True)
+    assignee_email = serializers.EmailField(required=True)
+
+
+class UnsyncExpenseParticipantSerializer(serializers.Serializer):
+    """Serializer for unsync expense participant data"""
+    email = serializers.EmailField(required=False)
+    is_included = serializers.BooleanField(required=False, default=True)
+    percentage = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, allow_null=True)
+    # Also support item fields if sent in participants for backwards compatibility
+    title = serializers.CharField(max_length=100, required=False)
+    amount = serializers.DecimalField(max_digits=9, decimal_places=2, required=False)
+    assignee_email = serializers.EmailField(required=False)
+
+    def validate(self, attrs):
+        if not attrs.get("email") and not attrs.get("assignee_email"):
+            raise serializers.ValidationError("Either 'email' or 'assignee_email' is required for participant.")
+        return attrs
 
 
 class UnsyncExpenseSerializer(serializers.Serializer):
@@ -33,7 +57,8 @@ class UnsyncExpenseSerializer(serializers.Serializer):
     category = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
     split_type = serializers.ChoiceField(choices=['equal', 'percentage', 'itemized'])
-    participants = serializers.ListField(child=serializers.DictField())
+    participants = UnsyncExpenseParticipantSerializer(many=True, required=False, default=list)
+    items = UnsyncExpenseItemSerializer(many=True, required=False, default=list)
 
 
 class UnsyncDataSerializer(serializers.Serializer):

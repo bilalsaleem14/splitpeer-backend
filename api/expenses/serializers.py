@@ -355,6 +355,7 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
                     raise DotsValidationError({"error": "New items must include `amount`."})
                 total += Decimal(str(amt))
 
+            # remaining_items_count = len(existing_items) - len(delete_ids) + len(create_items)
             remaining_items_count = (
                 len(existing_items) 
                 - len(delete_ids) 
@@ -417,6 +418,9 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         old_splits = {s.participant_id: (s.amount or None) for s in instance.expense_splits.all()}
         validated_data.pop("items", None)
 
+        old_amount = instance.amount
+        old_split_type = instance.split_type
+
         if "amount" in validated_data:
             amount = validated_data.get("amount", instance.amount)
             rate = instance.exchange_rate
@@ -424,8 +428,6 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
             instance.amount_usd = amount / rate
             instance.save()
 
-        old_amount = instance.amount
-        old_split_type = instance.split_type
         split_type = validated_data.get("split_type", old_split_type)
         split_type_changed = old_split_type != split_type
 
@@ -553,18 +555,25 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
                 instance.refresh_from_db()
                 all_splits_qs = instance.expense_splits.all()
                 included_splits = [s for s in all_splits_qs if s.is_included]
+                included_count = len(included_splits)
 
                 if instance.split_type == Expense.SplitType.EQUAL:
-                    per_participant = (instance.amount / len(included_splits)) if included_splits else Decimal("0")
+                    base_amount = (instance.amount / Decimal(str(included_count))).quantize(Decimal("0.01")) if included_count > 0 else Decimal("0.00")
+                    remainder = (instance.amount - (base_amount * Decimal(str(included_count)))) if included_count > 0 else Decimal("0.00")
+                    first_included = True
                     for s in all_splits_qs:
-                        s.amount = per_participant if s.is_included else None
+                        if s.is_included:
+                            s.amount = base_amount + (remainder if first_included else Decimal("0.00"))
+                            first_included = False
+                        else:
+                            s.amount = None
                         s.percentage = None
                         s.save()
 
                 elif instance.split_type == Expense.SplitType.PERCENTAGE:
                     for s in all_splits_qs:
                         if s.is_included and s.percentage:
-                            s.amount = (instance.amount * s.percentage) / Decimal("100")
+                            s.amount = ((instance.amount * s.percentage) / Decimal("100")).quantize(Decimal("0.01"))
                         else:
                             s.amount = None
                             s.percentage = None
@@ -574,15 +583,16 @@ class ExpenseUpdateSerializer(serializers.ModelSerializer):
         changed_members = {}
 
         for pid, new_amount in new_splits.items():
-            old_amount = old_splits.get(pid)
+            old_split_amt = old_splits.get(pid)
 
-            if old_amount is not None and new_amount != old_amount:
+            if old_split_amt is not None and new_amount != old_split_amt:
                 changed_members[pid] = new_amount
 
-            if old_amount is None and new_amount is not None:
+            if old_split_amt is None and new_amount is not None:
                 changed_members[pid] = new_amount
 
         if changed_members:
             create_expense_activity(expense=instance, member_amount_map=changed_members, triggered_by=self.context["request"].user, is_update=True)
 
         return instance
+

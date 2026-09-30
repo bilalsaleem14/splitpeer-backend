@@ -141,7 +141,7 @@ class OfflineSyncService:
         # 1. Process friends first
         for friend_data in validated_data.get('friends', []):
             friend, created = OfflineSyncService.create_unsync_friend(friend_data, authenticated_user)
-            if created:
+            if friend is not None and friend not in created_friends:
                 created_friends.append(friend)
 
         # 2. Process groups second
@@ -150,11 +150,16 @@ class OfflineSyncService:
             group_map[group_data['client_id']] = group  
             if created:
                 created_groups.append(group)
+                # post_save signal in api/groups/signals.py (add_creator_as_member) auto-creates creator's GroupMember
+                creator_member = GroupMember.objects.filter(group=group, user=authenticated_user).first()
+                if creator_member and creator_member not in created_group_members:
+                    created_group_members.append(creator_member)
 
         # 3. Process explicit group memberships third
         for membership_data in validated_data.get('group_members', []):
             group_member, created = OfflineSyncService.create_unsync_group_membership(membership_data, authenticated_user, group_map)
-            created_group_members.append(group_member)  
+            if group_member is not None and group_member not in created_group_members:
+                created_group_members.append(group_member)  
 
         # 4. Process expenses last 
         for expense_data in validated_data.get('expenses', []):
@@ -201,10 +206,29 @@ class OfflineSyncService:
             })
 
     @staticmethod
+    def is_self_email(email, current_user):
+        """Check if an email represents the authenticated request user or 'me@gmail.com'."""
+        if not email or not current_user:
+            return False
+        normalized = email.strip().lower()
+        user_email = (getattr(current_user, "email", "") or "").strip().lower()
+        return normalized == "me@gmail.com" or (bool(user_email) and normalized == user_email)
+
+    @staticmethod
+    def resolve_sync_user(email, current_user):
+        """Resolve email to the authenticated user if self-email, otherwise get_or_create user."""
+        if OfflineSyncService.is_self_email(email, current_user):
+            return current_user
+        return get_or_create_user_by_email(email)
+
+    @staticmethod
     def create_unsync_friend(friend_data, user):
         """Create friend relationship in sync context (idempotent)"""
         print("Creating unsync friend relationship.")
         email = friend_data['email']
+        if OfflineSyncService.is_self_email(email, user):
+            return None, False
+
         friend_user = get_or_create_user_by_email(email)
 
         # Create friend relationship (idempotent)
@@ -226,8 +250,15 @@ class OfflineSyncService:
     @staticmethod
     def create_unsync_group(group_data, user):
         """Create group from unsync data (idempotent)"""
+        from api.currency.models import CurrencyDropDown
         print("Creating unsync group.")
         client_id = group_data['client_id']
+        currency_code = group_data.get("currency", "")
+
+        try:
+            currency = CurrencyDropDown.objects.get(code=currency_code)
+        except CurrencyDropDown.DoesNotExist:
+            currency = CurrencyDropDown.objects.get(code="USD")
 
         # Create or get existing group
         group, created = Group.objects.get_or_create(
@@ -236,6 +267,7 @@ class OfflineSyncService:
                 'name': group_data['name'],
                 'description': group_data.get('description', ''),
                 'created_by': user,
+                'currency': currency
             }
         )
 
@@ -254,7 +286,7 @@ class OfflineSyncService:
         if not group:
             raise DotsValidationError({"error": f"Group '{group_client_id}' not found"})
 
-        member_user = get_or_create_user_by_email(member_email)
+        member_user = OfflineSyncService.resolve_sync_user(member_email, user)
         # Create group membership (idempotent)
         group_member, created = GroupMember.objects.get_or_create(
             group=group,
@@ -269,13 +301,14 @@ class OfflineSyncService:
     @staticmethod
     def create_unsync_expense(expense_data, user, group_map):
         """Create expense from unsync data (idempotent)"""
+        from api.core.services.currency_service import CurrencyService
         print("Creating unsync expense.")
         group_client_id = expense_data['group_client_id']
         group = group_map.get(group_client_id)
         if not group:
             raise DotsValidationError({"error": f"Group '{group_client_id}' not found"})
 
-        paid_by_user = get_or_create_user_by_email(expense_data['paid_by_email'])
+        paid_by_user = OfflineSyncService.resolve_sync_user(expense_data['paid_by_email'], user)
 
         paid_by_member, _ = GroupMember.objects.get_or_create(
             group=group,
@@ -287,6 +320,17 @@ class OfflineSyncService:
         if expense_data.get('category'):
             category = Category.objects.filter(name__iexact=expense_data['category']).first()
 
+        expense_amount = Decimal(str(expense_data['amount']))
+        group_currency_code = group.currency.code
+        amount_usd = expense_amount
+        exchange_rate = Decimal("1")
+
+        if not group_currency_code == "USD":
+            try:
+                amount_usd, exchange_rate = CurrencyService.convert_to_usd(expense_amount, group_currency_code)
+            except Exception:
+                pass
+
         expense, created = Expense.objects.get_or_create(
             client_id=expense_data['client_id'],
             defaults={
@@ -297,25 +341,37 @@ class OfflineSyncService:
                 'category': category,
                 'notes': expense_data.get('notes', ''),
                 'split_type': expense_data['split_type'],
-                'created_by': user
+                'created_by': user,
+                'currency': group_currency_code,
+                'amount_usd': amount_usd,
+                'exchange_rate': exchange_rate
             }
         )
 
         if created:
-            OfflineSyncService.create_expense_splits(expense, expense_data['participants'])
+            OfflineSyncService.create_expense_splits(expense, expense_data, user)
 
         print(f"Expense created: {created}")
         print(f"Expense details: {expense}")
         return expense, created
 
     @staticmethod
-    def create_expense_splits(expense, participants_data):
-        """Create expense splits based on participants data"""
+    def create_expense_splits(expense, expense_data, current_user=None):
+        """Create expense splits based on expense data (participants and/or items)"""
+        user = current_user or expense.created_by
         print("Creating expense splits.")
+
+        if isinstance(expense_data, dict):
+            participants_data = expense_data.get('participants', [])
+            items_data = expense_data.get('items', [])
+        else:
+            participants_data = expense_data
+            items_data = []
+
         split_methods = {
-            'equal': OfflineSyncService.create_equal_splits,
-            'percentage': OfflineSyncService.create_percentage_splits,
-            'itemized': OfflineSyncService.create_itemized_splits
+            'equal': lambda exp, p_data, u: OfflineSyncService.create_equal_splits(exp, p_data, u),
+            'percentage': lambda exp, p_data, u: OfflineSyncService.create_percentage_splits(exp, p_data, u),
+            'itemized': lambda exp, p_data, u: OfflineSyncService.create_itemized_splits(exp, p_data, u, items_data=items_data)
         }
 
         method = split_methods.get(expense.split_type)
@@ -325,28 +381,47 @@ class OfflineSyncService:
         print(f"method found:{method} {method is not None}")
         if method:
             print(f"method exists, proceeding to create splits.{method}")
-            method(expense, participants_data)
+            method(expense, participants_data, user)
 
     @staticmethod
-    def create_equal_splits(expense, participants_data):
+    def create_equal_splits(expense, participants_data, current_user=None):
         """Create equal splits with bulk operations"""
+        user = current_user or expense.created_by
         print("Creating equal splits.")
-        included_count = len([p for p in participants_data if p.get('is_included', True)])
-        split_amount = expense.amount / included_count if included_count > 0 else 0
 
-        expense_splits = []
-
+        member_map = {}
         for participant_data in participants_data:
-            user = get_or_create_user_by_email(participant_data['email'])
-
-            # Get or create group member
+            p_user = OfflineSyncService.resolve_sync_user(participant_data['email'], user)
             member, _ = GroupMember.objects.get_or_create(
                 group=expense.group,
-                user=user
+                user=p_user
             )
-
             is_included = participant_data.get('is_included', True)
-            amount = split_amount if is_included else None
+            if member.id not in member_map:
+                member_map[member.id] = (member, is_included)
+            else:
+                prev_member, prev_included = member_map[member.id]
+                member_map[member.id] = (member, prev_included or is_included)
+
+        included_members = [m for m, inc in member_map.values() if inc]
+        included_count = len(included_members)
+
+        split_amount = Decimal("0.00")
+        remainder = Decimal("0.00")
+        if included_count > 0:
+            base_amount = (expense.amount / Decimal(str(included_count))).quantize(Decimal("0.01"))
+            split_amount = base_amount
+            remainder = expense.amount - (base_amount * Decimal(str(included_count)))
+
+        expense_splits = []
+        first_included = True
+        for member_id, (member, is_included) in member_map.items():
+            amount = None
+            if is_included:
+                amount = split_amount
+                if first_included and remainder != Decimal("0.00"):
+                    amount += remainder
+                    first_included = False
 
             expense_splits.append(ExpenseSplit(
                 expense=expense,
@@ -358,76 +433,86 @@ class OfflineSyncService:
         ExpenseSplit.objects.bulk_create(expense_splits)
 
     @staticmethod
-    def create_percentage_splits(expense, participants_data):
+    def create_percentage_splits(expense, participants_data, current_user=None):
         """Create percentage-based splits with bulk operations"""
+        user = current_user or expense.created_by
         print("Creating percentage-based splits.")
-        expense_splits = []
 
+        member_map = {}
         for participant_data in participants_data:
-            user = get_or_create_user_by_email(participant_data['email'])
-
-            # Get or create group member
+            p_user = OfflineSyncService.resolve_sync_user(participant_data['email'], user)
             member, _ = GroupMember.objects.get_or_create(
                 group=expense.group,
-                user=user
+                user=p_user
             )
-
             percentage = participant_data.get('percentage')
             is_included = participant_data.get('is_included', True)
 
+            if member.id not in member_map:
+                member_map[member.id] = (member, Decimal(str(percentage)) if percentage is not None else None, is_included)
+            else:
+                prev_member, prev_percentage, prev_included = member_map[member.id]
+                total_pct = (prev_percentage or Decimal("0")) + (Decimal(str(percentage)) if percentage is not None else Decimal("0"))
+                member_map[member.id] = (member, total_pct, prev_included or is_included)
+
+        expense_splits = []
+        for member_id, (member, percentage, is_included) in member_map.items():
             amount = None
-            if is_included and percentage:
-                amount = (expense.amount * percentage) / 100
+            if is_included and percentage is not None:
+                amount = ((expense.amount * percentage) / Decimal("100")).quantize(Decimal("0.01"))
 
             expense_splits.append(ExpenseSplit(
                 expense=expense,
                 participant=member,
                 amount=amount,
-                percentage=percentage if is_included else None,
+                percentage=percentage.quantize(Decimal("0.01")) if (percentage is not None and is_included) else None,
                 is_included=is_included
             ))
 
-        # Bulk create all splits
         ExpenseSplit.objects.bulk_create(expense_splits)
 
     @staticmethod
-    def create_itemized_splits(expense, participants_data):
+    def create_itemized_splits(expense, participants_data, current_user=None, items_data=None):
         """Create itemized splits with bulk operations"""
+        user = current_user or expense.created_by
         print("Creating itemized splits.")
         expense_items = []
         expense_splits = []
-        member_cache = {}  
+        member_cache = {}
 
-        for item_data in participants_data:
-            user = get_or_create_user_by_email(item_data['assignee_email'])
+        raw_items = items_data or []
+        if not raw_items:
+            # Fallback for backward compatibility if items are passed inside participants
+            raw_items = [p for p in participants_data if 'assignee_email' in p]
 
-            # Get or create group member (cached)
-            if user.id not in member_cache:
+        for item_data in raw_items:
+            assignee_user = OfflineSyncService.resolve_sync_user(item_data['assignee_email'], user)
+
+            if assignee_user.id not in member_cache:
                 member, _ = GroupMember.objects.get_or_create(
                     group=expense.group,
-                    user=user
+                    user=assignee_user
                 )
-                member_cache[user.id] = member
+                member_cache[assignee_user.id] = member
             else:
-                member = member_cache[user.id]
+                member = member_cache[assignee_user.id]
 
-            # Create expense item
+            item_amount = Decimal(str(item_data['amount'])).quantize(Decimal("0.01"))
             expense_items.append(ExpenseItem(
                 expense=expense,
                 title=item_data['title'],
-                amount=item_data['amount'],
+                amount=item_amount,
                 assignee=member
             ))
 
-        # Bulk create all items
         created_items = ExpenseItem.objects.bulk_create(expense_items)
 
         amount_map = {}
         for item in created_items:
             assignee_id = item.assignee_id
-            amount_map[assignee_id] = amount_map.get(assignee_id, 0) + item.amount
+            amount_map[assignee_id] = amount_map.get(assignee_id, Decimal("0.00")) + Decimal(str(item.amount))
 
-        # Create splits based on aggregated amounts
+        # Create splits for participants who have items
         for member_id, total_amount in amount_map.items():
             expense_splits.append(ExpenseSplit(
                 expense=expense,
@@ -436,7 +521,27 @@ class OfflineSyncService:
                 is_included=True
             ))
 
-        # Bulk create all splits
+        # Also handle any participants explicitly passed with 'email' who have 0 items
+        for participant_data in participants_data:
+            if 'email' in participant_data and 'assignee_email' not in participant_data:
+                p_user = OfflineSyncService.resolve_sync_user(participant_data['email'], user)
+                if p_user.id not in member_cache:
+                    member, _ = GroupMember.objects.get_or_create(
+                        group=expense.group,
+                        user=p_user
+                    )
+                    member_cache[p_user.id] = member
+                else:
+                    member = member_cache[p_user.id]
+
+                if member.id not in amount_map:
+                    expense_splits.append(ExpenseSplit(
+                        expense=expense,
+                        participant=member,
+                        amount=None,
+                        is_included=False
+                    ))
+
         ExpenseSplit.objects.bulk_create(expense_splits)
 
     @staticmethod
@@ -450,19 +555,18 @@ class OfflineSyncService:
         for expense in created_expenses:
             splits = expense.expense_splits.filter(is_included=True)
             member_amount_map = {
-                s.participant_id: s.amount for s in splits
+                s.participant_id: s.amount.quantize(Decimal("0.01")) for s in splits if s.amount is not None
             }
 
             print(
                 f"Creating activity for NEW expense ID {expense.id} "
                 f"with splits: {member_amount_map}"
             )
-            
 
             create_expense_activity(
                 expense,
                 member_amount_map,
                 request.user
             )
-            
-            return True
+
+        return True
