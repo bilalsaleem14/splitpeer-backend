@@ -162,9 +162,9 @@ cython_debug/
 /media/*
 !/media/default.png
 !/media/default_group_thumbnail.jpg
+!media/app-store-badge.png
+!media/google-play-badge.png
 !/media/icons
 /static_files
 /.idea
 .secrets
-temp_auto_push.bat
-temp_interactive_push.bat

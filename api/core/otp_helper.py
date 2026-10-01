@@ -1,6 +1,7 @@
+import os
 import base64
-import secrets
 from datetime import datetime
+from email.mime.image import MIMEImage
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -36,7 +37,6 @@ def send_confirmation_code(new_otp, otp_type):
     
 
 def verify_otp(user_otp):
-    """returns user otp and error response if found any"""
     if timezone.now() > user_otp.timeout:
         raise DotsValidationError("Verification token expired!")
     return user_otp
@@ -53,28 +53,45 @@ def send_report_email(data):
     msg.send()
 
 
-def send_invite_email( email, inviter):
-    """Send invitation email to join SplitPeer"""
-    try:
-        
+BADGE_DIR = os.path.join(settings.BASE_DIR, "media")
 
-        email_subject = f"{inviter.fullname} invited you to SplitPeer - Split expenses easily!"
+INLINE_IMAGES = [
+    ("app-store-badge", "app-store-badge.png"),
+    ("google-play-badge", "google-play-badge.png"),
+]
+
+
+def attach_inline_images(msg):
+    msg.mixed_subtype = "related"
+    for cid, filename in INLINE_IMAGES:
+        with open(os.path.join(BADGE_DIR, filename), "rb") as f:
+            img = MIMEImage(f.read(), _subtype="png")
+        img.add_header("Content-ID", f"<{cid}>")
+        img.add_header("Content-Disposition", "inline", filename=filename)
+        msg.attach(img)
+
+
+def send_invite_email(email, inviter, group_name=None):
+    """Send invitation email to join WhoSplit"""
+    try:
+        if group_name:
+            email_subject = f"{inviter.fullname} added you to '{group_name}' on WhoSplit!"
+        else:
+            email_subject = f"{inviter.fullname} invited you to WhoSplit - Split expenses easily!"
+
         text_content = email_subject
         text_template = get_template("email_templates/friend_invitation.html")
         context_obj = {
             "inviter_name": inviter.fullname,
             "inviter_email": inviter.email,
-            "invited_email": email,            
+            "invited_email": email,
+            "group_name": group_name,
         }
 
         template_content = text_template.render(context_obj)
-        msg = EmailMultiAlternatives(
-            email_subject,
-            text_content,
-            settings.EMAIL_HOST_USER,
-            [email]
-        )
+        msg = EmailMultiAlternatives(email_subject, text_content, settings.EMAIL_HOST_USER, [email])
         msg.attach_alternative(template_content, "text/html")
+        attach_inline_images(msg)
         msg.send()
 
     except Exception as e:
