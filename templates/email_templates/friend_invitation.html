@@ -211,7 +211,7 @@
                                                                 <p style="font-size: 14px; line-height: 160%;">
                                                                     <span
                                                                         style="font-size: 18px; line-height: 28.8px;"><strong>{{ inviter_name }}</strong> has added you to
-                                                                        {% if group_name %}the group <strong>{{ group_name }}</strong>{% else %}WhoSplit{% endif %}
+                                                                        {% if group_name %}the group <strong>{{ group_name }}</strong>{% else %}{% endif %}
                                                                         on WhoSplit App to make splitting expenses with friends easy and convenient.
                                                                     </span>
                                                                 </p>
@@ -340,22 +340,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Small grey note below the footer -->
-                    <div class="u-row-container" style="padding: 0px;background-color: transparent">
-                        <div class="u-row" style="Margin: 0 auto;min-width: 320px;max-width: 600px;background-color: transparent;">
-                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                                <tbody>
-                                    <tr>
-                                        <td align="center" style="padding: 20px 30px 30px;">
-                                            <p style="font-size: 12px; line-height: 18px; color: #9a9a9a; text-align: center; padding-bottom: 6px;">This invitation was sent to <strong style="font-weight: 600;">{{ invited_email }}</strong>. If you didn't expect this invitation, you can safely ignore this email.</p>
-                                            <p style="font-size: 12px; line-height: 18px; color: #9a9a9a; text-align: center;">WhoSplit &bull; Making expense splitting simple &bull; <a href="https://whosplit.com/" style="color: #9a9a9a; text-decoration: underline;">whosplit.com</a></p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </td>

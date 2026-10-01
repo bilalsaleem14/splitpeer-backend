@@ -4,8 +4,8 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="SplitPeer",
-        default_version="v3.2.0.2",
+        title="WhoSplit",
+        default_version="v3.1",
         contact=openapi.Contact(email="crymzee@crymzee.com"),
     ),
     public=True,

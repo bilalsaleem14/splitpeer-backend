@@ -234,6 +234,8 @@ EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL")
 EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD")
 
+RANDOM_OTP = env.bool("RANDOM_OTP")
+
 # Celery
 CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", default="redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = env.str("CELERY_RESULT_BACKEND", default="redis://localhost:6379/0")

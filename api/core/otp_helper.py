@@ -1,4 +1,5 @@
 import os
+import secrets
 import base64
 from datetime import datetime
 from email.mime.image import MIMEImage
@@ -12,8 +13,8 @@ from api.core.utils import DotsValidationError
 
 
 def get_random_otp():
-    # if is_send:
-    #     return str(secrets.randbelow(90000) + 10000)
+    if settings.RANDOM_OTP:
+        return str(secrets.randbelow(90000) + 10000)
     return "99999"
 
 
@@ -26,7 +27,7 @@ def get_otp_verified_token(otp, content):
 
 
 def send_confirmation_code(new_otp, otp_type):
-    email_subject = "Splitpeer OTP Verification."
+    email_subject = "WhoSplit OTP Verification."
     text_content = email_subject
     text_template = get_template("email_templates/verify-code-email.html")
     context_obj = {"verification_code": new_otp.code, "type": otp_type}
@@ -43,7 +44,7 @@ def verify_otp(user_otp):
 
 
 def send_report_email(data):
-    email_subject = "Splitpeer Report Problem."
+    email_subject = "WhoSplit Report Problem."
     text_content = email_subject
     text_template = get_template("email_templates/report-email.html")
     context_obj = {"data": data}
