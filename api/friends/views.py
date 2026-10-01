@@ -1,4 +1,4 @@
-from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery, Exists, IntegerField
+from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery, Exists
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
@@ -30,8 +30,7 @@ class FriendViewSet(DotsModelViewSet):
     search_fields = ["member__fullname", "member__email"]
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(created_by=self.request.user)
-        return queryset
+        return super().get_queryset().filter(created_by=self.request.user)
         
     @action(detail=False, url_path="out", methods=["GET"], serializer_class=UserWithFriendStatusSerializer)
     def not_friend(self, request):
