@@ -1,10 +1,11 @@
-from django.db.models import Sum, Count, Q, F, Value, DecimalField, OuterRef, Subquery, Exists
+from django.db.models import Sum, Count, Q, Value, DecimalField, OuterRef, Subquery, Exists, IntegerField
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -14,7 +15,7 @@ from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
 from api.expenses.models import Expense
 
-from api.friends.serializers import FriendSerializer, FriendCreateSerializer, UserWithFriendStatusSerializer
+from api.friends.serializers import FriendSerializer, FriendCreateSerializer, UserWithFriendStatusSerializer, FriendInviteSerializer
 from api.groups.serializers import GroupSerializer
 
 
@@ -60,3 +61,10 @@ class FriendViewSet(DotsModelViewSet):
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, url_path="invite", methods=["POST"], serializer_create_class=FriendInviteSerializer)
+    def invite_friend(self, request):
+        serializer = self.get_serializer_create(data=request.data, context=self.get_serializer_context())
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"data": self.get_serializer(instance=serializer.instance, context=self.get_serializer_context()).data}, status=status.HTTP_200_OK)

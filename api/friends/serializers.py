@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from api.core.utils import DotsValidationError
+from api.core.otp_helper import send_invite_email
+from api.core.utils import DotsValidationError, get_or_create_user_by_email
 
 from api.friends.models import Friend
 
@@ -44,6 +45,41 @@ class FriendCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["created_by"] = self.context["request"].user
         return super().create(validated_data)
+
+
+class FriendInviteSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(write_only=True, required=True)
+
+    class Meta:
+        model = Friend
+        fields = ["email"]
+
+    def validate_email(self, value):
+        request = self.context.get('request')
+        email = value.lower().strip()
+
+        existing_user = User.objects.filter(email__iexact=email).first()
+
+        if existing_user:
+            if Friend.objects.filter(created_by=request.user, member=existing_user).exists():
+                raise DotsValidationError({"error": "This user is already your friend."})
+            raise DotsValidationError({"error": "This user is already registered. You can add them as friend normally."})
+
+        if request.user.email.lower() == email:
+            raise DotsValidationError({"error": "You cannot add yourself as your friend."})
+
+        return email
+
+    def create(self, validated_data):
+        email = validated_data.pop('email')
+        request = self.context["request"]
+
+        user = get_or_create_user_by_email(email)
+        friend = Friend.objects.create(created_by=request.user, member=user)
+
+        send_invite_email(email, inviter=request.user)
+
+        return friend
 
 
 class UserWithFriendStatusSerializer(ShortUserSerializer):
