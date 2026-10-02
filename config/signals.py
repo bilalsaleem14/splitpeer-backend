@@ -15,7 +15,7 @@ def delete_instance_media(instance):
     for field in instance._meta.fields:
         if isinstance(field, (FileField, ImageField)):
             file = getattr(instance, field.name)
-            if file and file.name != "default.png":
+            if file and file.name != "default.png" and file.name != "default_group_thumbnail.jpg":
                 file_path = file.path
                 if os.path.exists(file_path):
                     os.remove(file_path)
