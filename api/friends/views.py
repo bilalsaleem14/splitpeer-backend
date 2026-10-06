@@ -1,5 +1,4 @@
-from django.db.models import Sum, Count, Q, Value, DecimalField, OuterRef, Subquery, Exists, IntegerField
-from django.db.models.functions import Coalesce
+from django.db.models import Q
 from django.contrib.auth import get_user_model
 
 from rest_framework import filters, status
@@ -12,11 +11,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from api.core.mixin import DotsModelViewSet
 
 from api.friends.models import Friend
-from api.groups.models import Group, GroupMember
-from api.expenses.models import Expense
 
 from api.friends.serializers import FriendSerializer, FriendCreateSerializer, UserWithFriendStatusSerializer, FriendInviteSerializer
 from api.groups.serializers import GroupSerializer
+
+from api.groups.utils import get_common_groups_queryset
 
 
 User = get_user_model()
@@ -51,13 +50,7 @@ class FriendViewSet(DotsModelViewSet):
     @action(detail=True, methods=["GET"], url_path="groups", serializer_class=GroupSerializer)
     def common_groups(self, request, pk=None):
         friend = self.get_object()
-        
-        user_member_exists = GroupMember.objects.filter(group=OuterRef("pk"), user=request.user)
-        friend_member_exists = GroupMember.objects.filter(group=OuterRef("pk"), user=friend.member)
-        expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
-        members_count_subquery = GroupMember.objects.filter(group=OuterRef("pk")).exclude(user=OuterRef("created_by")).values("group").annotate(count=Count("pk")).values("count")
-        queryset = Group.objects.annotate(is_user=Exists(user_member_exists), is_friend=Exists(friend_member_exists)).filter(is_user=True, is_friend=True).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Coalesce(Subquery(members_count_subquery, output_field=IntegerField()), 0), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).order_by("-id")
-
+        queryset = get_common_groups_queryset(request.user, friend.member)
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)

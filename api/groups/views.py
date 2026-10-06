@@ -1,30 +1,30 @@
 from django.http import Http404
+from django.shortcuts import render
 from django.db import transaction
-from django.db.models import Sum, Count, Q, Value, DecimalField, OuterRef, Subquery, When, IntegerField, Case
-from django.db.models.functions import Coalesce
+from django.db.models import Q, Value, OuterRef, Subquery, When, IntegerField, Case
 from django.contrib.auth import get_user_model
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.renderers import JSONRenderer, StaticHTMLRenderer
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from api.core.permissions import IsOwner
+from api.core.permissions import IsApprovedGroupMember, IsOwner
 from api.core.filters import GroupMemberFilter, UserFilter
 from api.core.mixin import DotsModelViewSet
 from api.core.utils import DotsValidationError
 
 from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
-from api.expenses.models import Expense
 
 from api.users.serializers import ShortUserSerializer
-from api.groups.serializers import GroupSerializer, GroupCreateSerializer, GroupMemberSerializer, GroupMemberCreateSerializer, GroupMemberBulkCreateSerializer
+from api.groups.serializers import GroupCreateSerializer, GroupJoinRequestSerializer, GroupJoinRespondSerializer, GroupMemberBulkCreateSerializer, GroupMemberCreateSerializer, GroupMemberSerializer, GroupSerializer
 
-from api.groups.utils import create_group_member_activities
+from api.groups.utils import annotate_group_queryset, create_group_member_activities, filter_by_approved_group_member
 
 
 User = get_user_model()
@@ -34,13 +34,16 @@ class GroupViewSet(DotsModelViewSet):
     serializer_class = GroupSerializer
     serializer_create_class = GroupCreateSerializer
     queryset = Group.objects.all()
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated, IsOwner, IsApprovedGroupMember]
+    permission_classes_by_action = {
+        "default": [IsAuthenticated, IsOwner, IsApprovedGroupMember],
+        "request_join": [IsAuthenticated],
+        "respond_join_request": [AllowAny],
+    }
 
     def get_queryset(self):
-        expenses_sum_subquery = Expense.objects.filter(group=OuterRef("pk")).values("group").annotate(total=Sum("amount")).values("total")
-        members_count_subquery = GroupMember.objects.filter(group=OuterRef("pk")).exclude(user=OuterRef("created_by")).values("group").annotate(count=Count("pk")).values("count")
-        queryset = super().get_queryset().filter(Q(created_by=self.request.user) | Q(members__user=self.request.user)).select_related("created_by").prefetch_related("members__user").annotate(members_count_annotated=Coalesce(Subquery(members_count_subquery, output_field=IntegerField()), 0), total_expenses_annotated=Coalesce(Subquery(expenses_sum_subquery, output_field=DecimalField()), Value(0, output_field=DecimalField()))).distinct().order_by("-id")
-        return queryset
+        queryset = super().get_queryset().filter(Q(created_by=self.request.user) | Q(members__user=self.request.user))
+        return annotate_group_queryset(queryset).distinct().order_by("-id")
 
     def get_object(self):
         try:
@@ -63,6 +66,33 @@ class GroupViewSet(DotsModelViewSet):
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
 
+    @action(detail=True, methods=["POST"], url_path="request-join", permission_classes=[IsAuthenticated], serializer_class=GroupMemberSerializer)
+    def request_join(self, request, pk=None):
+        group = self.get_object()
+        serializer = GroupJoinRequestSerializer(data=request.data, context={"request": request, "group": group})
+        serializer.is_valid(raise_exception=True)
+        member = serializer.save()
+        output_serializer = self.get_serializer(member, context=self.get_serializer_context())
+        return Response({"message": "Request to join the group has been sent to the group creator.", "data": output_serializer.data}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_path="join-request/respond", permission_classes=[AllowAny], renderer_classes=[JSONRenderer, StaticHTMLRenderer])
+    def respond_join_request(self, request):
+        if request.method == "HEAD":
+            return render(
+                request,
+                "email_templates/group_join_action_result.html",
+                {"title": "Group Join Request", "callout": "Group Join Request", "message": "", "status_type": "info"},
+                status=status.HTTP_200_OK,
+            )
+
+        serializer = GroupJoinRespondSerializer(data=request.query_params, context={"request": request})
+        if not serializer.is_valid():
+            error_context, error_status = GroupJoinRespondSerializer.get_error_response_data(serializer.errors)
+            return render(request, "email_templates/group_join_action_result.html", error_context, status=error_status)
+
+        result_context = serializer.save()
+        return render(request, "email_templates/group_join_action_result.html", result_context, status=status.HTTP_200_OK)
+
 
 class GroupMemberViewSet(DotsModelViewSet):
     serializer_class = GroupMemberSerializer
@@ -73,7 +103,7 @@ class GroupMemberViewSet(DotsModelViewSet):
     filterset_class = GroupMemberFilter
     
     def get_queryset(self):
-        queryset = super().get_queryset().filter(group__members__user=self.request.user).distinct()
+        queryset = filter_by_approved_group_member(super().get_queryset(), self.request.user)
         return queryset.annotate(is_request_user=Case(When(user=self.request.user, then=Value(0)), default=Value(1), output_field=IntegerField())).order_by("is_request_user", "-id")
     
     def get_object(self):

@@ -275,6 +275,15 @@ class OfflineSyncService:
         print(f"Group details: {group}")
         return group, created
 
+    # Get or create a GroupMember with APPROVED status for group creator and NOT_REQUESTED for others
+    @staticmethod
+    def get_or_create_group_member(group, member_user):
+        default_status = GroupMember.Status.APPROVED if member_user.id == group.created_by_id else GroupMember.Status.NOT_REQUESTED
+        return GroupMember.objects.get_or_create(
+            group=group, user=member_user,
+            defaults={'group': group, 'user': member_user, 'status': default_status}
+        )
+
     @staticmethod
     def create_unsync_group_membership(membership_data, user, group_map):
         """Create group membership in sync context (idempotent)"""
@@ -288,11 +297,7 @@ class OfflineSyncService:
 
         member_user = OfflineSyncService.resolve_sync_user(member_email, user)
         # Create group membership (idempotent)
-        group_member, created = GroupMember.objects.get_or_create(
-            group=group,
-            user=member_user,
-            defaults={'group': group, 'user': member_user}
-        )
+        group_member, created = OfflineSyncService.get_or_create_group_member(group, member_user)
 
         print(f"Group membership created: {created}")
         print(f"GroupMember details: {group_member}")
@@ -310,11 +315,7 @@ class OfflineSyncService:
 
         paid_by_user = OfflineSyncService.resolve_sync_user(expense_data['paid_by_email'], user)
 
-        paid_by_member, _ = GroupMember.objects.get_or_create(
-            group=group,
-            user=paid_by_user,
-            defaults={'group': group, 'user': paid_by_user}
-        )
+        paid_by_member, _ = OfflineSyncService.get_or_create_group_member(group, paid_by_user)
 
         category = None
         if expense_data.get('category'):
@@ -392,10 +393,7 @@ class OfflineSyncService:
         member_map = {}
         for participant_data in participants_data:
             p_user = OfflineSyncService.resolve_sync_user(participant_data['email'], user)
-            member, _ = GroupMember.objects.get_or_create(
-                group=expense.group,
-                user=p_user
-            )
+            member, _ = OfflineSyncService.get_or_create_group_member(expense.group, p_user)
             is_included = participant_data.get('is_included', True)
             if member.id not in member_map:
                 member_map[member.id] = (member, is_included)
@@ -441,10 +439,7 @@ class OfflineSyncService:
         member_map = {}
         for participant_data in participants_data:
             p_user = OfflineSyncService.resolve_sync_user(participant_data['email'], user)
-            member, _ = GroupMember.objects.get_or_create(
-                group=expense.group,
-                user=p_user
-            )
+            member, _ = OfflineSyncService.get_or_create_group_member(expense.group, p_user)
             percentage = participant_data.get('percentage')
             is_included = participant_data.get('is_included', True)
 
@@ -489,10 +484,7 @@ class OfflineSyncService:
             assignee_user = OfflineSyncService.resolve_sync_user(item_data['assignee_email'], user)
 
             if assignee_user.id not in member_cache:
-                member, _ = GroupMember.objects.get_or_create(
-                    group=expense.group,
-                    user=assignee_user
-                )
+                member, _ = OfflineSyncService.get_or_create_group_member(expense.group, assignee_user)
                 member_cache[assignee_user.id] = member
             else:
                 member = member_cache[assignee_user.id]
@@ -526,10 +518,7 @@ class OfflineSyncService:
             if 'email' in participant_data and 'assignee_email' not in participant_data:
                 p_user = OfflineSyncService.resolve_sync_user(participant_data['email'], user)
                 if p_user.id not in member_cache:
-                    member, _ = GroupMember.objects.get_or_create(
-                        group=expense.group,
-                        user=p_user
-                    )
+                    member, _ = OfflineSyncService.get_or_create_group_member(expense.group, p_user)
                     member_cache[p_user.id] = member
                 else:
                     member = member_cache[p_user.id]
@@ -569,4 +558,4 @@ class OfflineSyncService:
                 request.user
             )
 
-        return True
+        return True

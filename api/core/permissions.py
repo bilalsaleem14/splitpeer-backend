@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import permissions
 
+from api.groups.utils import is_approved_group_member
+
 
 User = get_user_model()
 
@@ -29,3 +31,13 @@ class IsOwner(permissions.BasePermission):
         if hasattr(obj, "created_for"):
             return obj.created_for == request.user
         return False
+
+
+class IsApprovedGroupMember(permissions.BasePermission):
+    message = {"error": "You cannot access this group until the group creator approves your join request."}
+
+    def has_object_permission(self, request, view, obj):
+        group = obj if hasattr(obj, "members") else getattr(obj, "group", None)
+        if group is None:
+            return True
+        return is_approved_group_member(group, request.user)

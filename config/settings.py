@@ -248,5 +248,7 @@ CELERY_TIMEZONE = TIME_ZONE
 GET_CURRENCY_HOUR = env.int("GET_CURRENCY_HOUR", default=0)
 GET_CURRENCY_MINUTE = env.int("GET_CURRENCY_MINUTE", default=0)
 
+# Cooldown in minutes before a rejected or pending group join request can be sent again (0 = no cooldown).
+GROUP_JOIN_REQUEST_COOLDOWN_MINUTES = env.int("GROUP_JOIN_REQUEST_COOLDOWN_MINUTES", default=0)
 
 temporary_password = env.str("TEMPORARY_PASSWORD")

@@ -4,14 +4,15 @@ from django.contrib.contenttypes.models import ContentType
 
 from api.groups.models import Group, GroupMember
 from api.expenses.models import Expense
+from api.activities.models import Activity
 
 from api.groups.utils import create_group_member_activities
-from api.activities.models import Activity
+
 
 @receiver(post_save, sender=Group)
 def add_creator_as_member(sender, instance, created, **kwargs):
     if created:
-        GroupMember.objects.create(group=instance, user=instance.created_by)
+        GroupMember.objects.create(group=instance, user=instance.created_by, status=GroupMember.Status.APPROVED)
 
 
 @receiver(post_save, sender=GroupMember)

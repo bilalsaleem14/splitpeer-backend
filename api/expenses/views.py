@@ -9,6 +9,7 @@ from api.core.permissions import IsOwner
 from api.expenses.models import Expense
 
 from api.expenses.serializers import ExpenseSerializer, ExpenseCreateSerializer, ExpenseUpdateSerializer
+from api.groups.utils import filter_by_approved_group_member
 
 
 class ExpenseViewSet(DotsModelViewSet):
@@ -23,8 +24,7 @@ class ExpenseViewSet(DotsModelViewSet):
     }
     
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(group__members__user=self.request.user).distinct()
+        return filter_by_approved_group_member(super().get_queryset(), self.request.user)
     
     def get_serializer_create_class(self):
         if self.action in self.action_serializers:

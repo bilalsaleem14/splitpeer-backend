@@ -1,14 +1,19 @@
+from django.conf import settings
+from django.core import signing
 from django.db.models import Sum
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator
 
+from api.core.otp_helper import send_group_join_request_email, send_group_join_response_email
 from api.core.utils import DotsValidationError
 from api.core.validators import validate_image
 
 from api.friends.models import Friend
 from api.groups.models import Group, GroupMember
+from api.groups.utils import build_group_join_action_urls, get_user_group_membership, verify_group_join_token
 from api.currency.models import CurrencyDropDown
 
 from api.users.serializers import ShortUserSerializer, ImageSerializer
@@ -23,15 +28,35 @@ class GroupSerializer(serializers.ModelSerializer):
     total_expenses = serializers.SerializerMethodField()
     member_profile_pictures = serializers.SerializerMethodField()
     currency = CurrencyDropDownSerializer(read_only=True)
+    membership_status = serializers.SerializerMethodField()
+    can_request_join = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
-        fields = ["id", "created_by", "name", "description", "thumbnail", "currency", "members_count", "total_expenses", "member_profile_pictures"]
+        fields = ["id", "created_by", "name", "description", "thumbnail", "currency", "members_count", "total_expenses", "member_profile_pictures", "membership_status", "can_request_join"]
     
     def validate_currency(self, value):
         if not CurrencyDropDown.objects.filter(code=value).exists():
             raise serializers.ValidationError("Unsupported currency")
         return value
+
+    def get_membership_status(self, obj):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated:
+            return None
+        if obj.created_by_id == user.id:
+            return GroupMember.Status.APPROVED
+        member = get_user_group_membership(obj, user)
+        return member.status if member else None
+
+    def get_can_request_join(self, obj):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if not user or not user.is_authenticated or obj.created_by_id == user.id:
+            return False
+        member = get_user_group_membership(obj, user)
+        return member.can_request_join() if member else False
 
     def get_members_count(self, obj):
         annotated_count = getattr(obj, "members_count_annotated", None)
@@ -53,9 +78,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class GroupCreateSerializer(serializers.ModelSerializer):
-
     thumbnail = serializers.ImageField(validators=[validate_image()])
-
     currency = serializers.CharField(write_only=True)
 
     class Meta:
@@ -91,7 +114,7 @@ class GroupMemberSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = GroupMember
-        fields = ["id", "group", "user", "created_at", "updated_at"]
+        fields = ["id", "group", "user", "status", "last_requested_at", "responded_at", "created_at", "updated_at"]
 
 
 class GroupMemberCreateSerializer(serializers.ModelSerializer):
@@ -165,3 +188,133 @@ class GroupMemberBulkCreateSerializer(serializers.Serializer):
         instances = [GroupMember(group=group, user_id=uid) for uid in user_ids]
         return GroupMember.objects.bulk_create(instances)
 
+
+class GroupJoinRequestSerializer(serializers.Serializer):
+    
+    def validate(self, attrs):
+        request = self.context["request"]
+        group = self.context["group"]
+
+        if group.created_by_id == request.user.id:
+            raise DotsValidationError({"error": "You already have access to this group."})
+
+        member = get_user_group_membership(group, request.user)
+        if not member:
+            raise DotsValidationError({"error": "You are not a member of this group."})
+
+        if member.status == GroupMember.Status.APPROVED:
+            raise DotsValidationError({"error": "Your membership in this group is already approved."})
+
+        if not member.can_request_join():
+            raise DotsValidationError({"error": "A join request is already pending approval from the group creator."})
+
+        attrs["member"] = member
+        return attrs
+
+    def save(self, **kwargs):
+        request = self.context["request"]
+        group = self.context["group"]
+        member = self.validated_data["member"]
+
+        member.status = GroupMember.Status.PENDING
+        member.last_requested_at = timezone.now()
+        member.save(update_fields=["status", "last_requested_at", "updated_at"])
+
+        approve_url, reject_url = build_group_join_action_urls(request, member)
+        send_group_join_request_email(creator=group.created_by, requester=request.user, group=group, approve_url=approve_url, reject_url=reject_url)
+        return member
+
+
+class GroupJoinRespondSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True, error_messages={"required": "Missing join request token.", "blank": "Missing join request token."})
+
+    def validate_token(self, value):
+        max_age = getattr(settings, "GROUP_JOIN_TOKEN_MAX_AGE_SECONDS", None)
+        try:
+            payload = verify_group_join_token(value, max_age=max_age)
+        except signing.SignatureExpired:
+            raise serializers.ValidationError("This join request link has expired.", code="expired")
+        except signing.BadSignature:
+            raise serializers.ValidationError("This join request link is invalid.", code="invalid")
+
+        if payload.get("action") not in ("approve", "reject"):
+            raise serializers.ValidationError("Unsupported action in join request link.", code="invalid_action")
+
+        return payload
+
+    def validate(self, attrs):
+        payload = attrs["token"]
+        member = GroupMember.objects.select_related("group__created_by", "user").filter(id=payload.get("member_id"), group_id=payload.get("group_id")).first()
+
+        if not member:
+            raise serializers.ValidationError({"member": "The group or member associated with this request no longer exists."}, code="not_found")
+
+        attrs["member"] = member
+        attrs["decision"] = payload["action"]
+        return attrs
+
+    def save(self, **kwargs):
+        member = self.validated_data["member"]
+        decision = self.validated_data["decision"]
+        group = member.group
+        requester = member.user
+        creator = group.created_by
+
+        if member.status != GroupMember.Status.PENDING:
+            if member.status == GroupMember.Status.APPROVED:
+                callout = f"Already Approved — {group.name}"
+                msg = f"{requester.fullname} has already been approved to access '{group.name}'."
+            elif member.status == GroupMember.Status.REJECTED:
+                callout = f"Already Declined — {group.name}"
+                msg = f"This join request for {requester.fullname} in '{group.name}' has already been declined."
+            else:
+                callout = f"No Pending Request — {group.name}"
+                msg = f"There is no pending join request from {requester.fullname} for '{group.name}'."
+            return {
+                "title": "Request Already Processed",
+                "creator_name": creator.fullname,
+                "callout": callout,
+                "message": msg,
+                "status_type": member.status,
+            }
+
+        is_approved = decision == "approve"
+        member.status = GroupMember.Status.APPROVED if is_approved else GroupMember.Status.REJECTED
+        member.responded_at = timezone.now()
+        member.save(update_fields=["status", "responded_at", "updated_at"])
+
+        send_group_join_response_email(member_user=requester, creator=creator, group=group, is_approved=is_approved)
+
+        if is_approved:
+            return {
+                "title": "Request Approved",
+                "creator_name": creator.fullname,
+                "callout": f"Access Granted — {group.name}",
+                "message": f"You have approved {requester.fullname}'s request to join '{group.name}'. They have been notified by email and now have access to the group.",
+                "status_type": member.status,
+            }
+
+        return {
+            "title": "Request Rejected",
+            "creator_name": creator.fullname,
+            "callout": f"Request Declined — {group.name}",
+            "message": f"You have declined {requester.fullname}'s request to join '{group.name}'. They have been notified by email.",
+            "status_type": member.status,
+        }
+
+    @staticmethod
+    def get_error_response_data(errors):
+        if "member" in errors:
+            msg = str(errors["member"][0])
+            return {"title": "Request Not Found", "callout": "Request Not Found", "message": msg, "status_type": "info"}, status.HTTP_404_NOT_FOUND
+
+        token_errors = errors.get("token", ["Invalid join request link."])
+        first_error = token_errors[0]
+        code = getattr(first_error, "code", "")
+        title_map = {
+            "expired": "Link Expired",
+            "invalid": "Invalid Link",
+            "invalid_action": "Invalid Action",
+        }
+        title = title_map.get(code, "Invalid Request")
+        return {"title": title, "callout": title, "message": str(first_error), "status_type": "info"}, status.HTTP_400_BAD_REQUEST

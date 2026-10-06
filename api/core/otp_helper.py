@@ -26,16 +26,26 @@ def get_otp_verified_token(otp, content):
     return base64_message
 
 
-def send_confirmation_code(new_otp, otp_type):
-    email_subject = "WhoSplit OTP Verification."
-    text_content = email_subject
-    text_template = get_template("email_templates/verify-code-email.html")
-    context_obj = {"verification_code": new_otp.code, "type": otp_type}
+def send_html_email(subject, recipient_list, template_name, context_obj, attach_badges=False):
+    if isinstance(recipient_list, str):
+        recipient_list = [recipient_list]
+    text_template = get_template(template_name)
     template_content = text_template.render(context_obj)
-    msg = EmailMultiAlternatives(email_subject, text_content, settings.EMAIL_HOST_USER, [new_otp.email])
+    msg = EmailMultiAlternatives(subject, subject, settings.EMAIL_HOST_USER, recipient_list)
     msg.attach_alternative(template_content, "text/html")
+    if attach_badges:
+        attach_inline_images(msg)
     msg.send()
-    
+
+
+def send_confirmation_code(new_otp, otp_type):
+    send_html_email(
+        subject="WhoSplit OTP Verification.",
+        recipient_list=[new_otp.email],
+        template_name="email_templates/verify-code-email.html",
+        context_obj={"verification_code": new_otp.code, "type": otp_type},
+    )
+
 
 def verify_otp(user_otp):
     if timezone.now() > user_otp.timeout:
@@ -44,14 +54,12 @@ def verify_otp(user_otp):
 
 
 def send_report_email(data):
-    email_subject = "WhoSplit Report Problem."
-    text_content = email_subject
-    text_template = get_template("email_templates/report-email.html")
-    context_obj = {"data": data}
-    template_content = text_template.render(context_obj)
-    msg = EmailMultiAlternatives(email_subject, text_content, settings.EMAIL_HOST_USER, settings.CONTACT_US_EMAILS)
-    msg.attach_alternative(template_content, "text/html")
-    msg.send()
+    send_html_email(
+        subject="WhoSplit Report Problem.",
+        recipient_list=settings.CONTACT_US_EMAILS,
+        template_name="email_templates/report-email.html",
+        context_obj={"data": data},
+    )
 
 
 BADGE_DIR = os.path.join(settings.BASE_DIR, "media")
@@ -72,28 +80,43 @@ def attach_inline_images(msg):
         msg.attach(img)
 
 
+# Send invitation email to join WhoSplit
 def send_invite_email(email, inviter, group_name=None):
-    """Send invitation email to join WhoSplit"""
     try:
         if group_name:
             email_subject = f"{inviter.fullname} added you to '{group_name}' on WhoSplit!"
         else:
             email_subject = f"{inviter.fullname} invited you to WhoSplit - Split expenses easily!"
 
-        text_content = email_subject
-        text_template = get_template("email_templates/friend_invitation.html")
-        context_obj = {
-            "inviter_name": inviter.fullname,
-            "inviter_email": inviter.email,
-            "invited_email": email,
-            "group_name": group_name,
-        }
-
-        template_content = text_template.render(context_obj)
-        msg = EmailMultiAlternatives(email_subject, text_content, settings.EMAIL_HOST_USER, [email])
-        msg.attach_alternative(template_content, "text/html")
-        attach_inline_images(msg)
-        msg.send()
-
+        context_obj = {"inviter_name": inviter.fullname, "inviter_email": inviter.email, "invited_email": email, "group_name": group_name}
+        send_html_email(subject=email_subject, recipient_list=[email], template_name="email_templates/friend_invitation.html", context_obj=context_obj, attach_badges=True)
     except Exception as e:
         print(f"Failed to send invite email: {e}")
+
+
+# Send group join/access request email with Approve/Reject links to the group creator
+def send_group_join_request_email(creator, requester, group, approve_url, reject_url):
+    try:
+        email_subject = f"WhoSplit Group Join Request - {group.name}"
+        context_obj = {
+            "creator_name": creator.fullname, "requester_name": requester.fullname,
+            "requester_email": requester.email, "group_name": group.name,
+            "approve_url": approve_url, "reject_url": reject_url,
+        }
+        send_html_email(subject=email_subject, recipient_list=[creator.email], template_name="email_templates/group_join_request.html", context_obj=context_obj)
+    except Exception as e:
+        print(f"Failed to send group join request email: {e}")
+
+
+# Send approval or rejection notification email to the participant
+def send_group_join_response_email(member_user, creator, group, is_approved):
+    try:
+        if is_approved:
+            email_subject = f"WhoSplit Join Request Approved - {group.name}"
+        else:
+            email_subject = f"WhoSplit Join Request Update - {group.name}"
+
+        context_obj = {"member_name": member_user.fullname, "creator_name": creator.fullname, "group_name": group.name, "is_approved": is_approved}
+        send_html_email(subject=email_subject, recipient_list=[member_user.email], template_name="email_templates/group_join_response.html", context_obj=context_obj)
+    except Exception as e:
+        print(f"Failed to send group join response email: {e}")
