@@ -33,9 +33,12 @@ def is_approved_group_member(group, user):
     return bool(member and member.status == GroupMember.Status.APPROVED)
 
 
-# Filter a queryset with a group relation to only groups where the user is an approved member.
-def filter_by_approved_group_member(queryset, user, group_lookup="group"):
-    return queryset.filter(**{f"{group_lookup}__members__user": user, f"{group_lookup}__members__status": GroupMember.Status.APPROVED}).distinct()
+# Filter a queryset with a group relation for the requesting user, restricting unfiltered list queries to approved groups.
+def filter_by_approved_group_member(queryset, request, action=None, group_lookup="group"):
+    filters = {f"{group_lookup}__members__user": request.user}
+    if action in ("list", "list_dropdown") and not request.query_params.get("group"):
+        filters[f"{group_lookup}__members__status"] = GroupMember.Status.APPROVED
+    return queryset.filter(**filters).distinct()
 
 
 def generate_group_join_token(member, action):

@@ -66,8 +66,8 @@ class GroupViewSet(DotsModelViewSet):
         serializer = self.get_serializer(page, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=["POST"], url_path="request-join", permission_classes=[IsAuthenticated], serializer_class=GroupMemberSerializer)
-    def request_join(self, request, pk=None):
+    @action(detail=True, methods=["POST"], url_path="join-request", permission_classes=[IsAuthenticated], serializer_class=GroupMemberSerializer)
+    def join_request(self, request, pk=None):
         group = self.get_object()
         serializer = GroupJoinRequestSerializer(data=request.data, context={"request": request, "group": group})
         serializer.is_valid(raise_exception=True)
@@ -98,12 +98,12 @@ class GroupMemberViewSet(DotsModelViewSet):
     serializer_class = GroupMemberSerializer
     serializer_create_class = GroupMemberCreateSerializer
     queryset = GroupMember.objects.all().select_related("user", "group").order_by("-id")
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsApprovedGroupMember]
     filter_backends = [DjangoFilterBackend]
     filterset_class = GroupMemberFilter
     
     def get_queryset(self):
-        queryset = filter_by_approved_group_member(super().get_queryset(), self.request.user)
+        queryset = filter_by_approved_group_member(super().get_queryset(), self.request, self.action)
         return queryset.annotate(is_request_user=Case(When(user=self.request.user, then=Value(0)), default=Value(1), output_field=IntegerField())).order_by("is_request_user", "-id")
     
     def get_object(self):

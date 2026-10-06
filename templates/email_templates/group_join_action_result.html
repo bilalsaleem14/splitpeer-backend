@@ -1,297 +1,251 @@
-<!DOCTYPE HTML
-    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
-    xmlns:o="urn:schemas-microsoft-com:office:office">
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <!--[if gte mso 9]>
-<xml>
-  <o:OfficeDocumentSettings>
-    <o:AllowPNG/>
-    <o:PixelsPerInch>96</o:PixelsPerInch>
-  </o:OfficeDocumentSettings>
-</xml>
-<![endif]-->
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="x-apple-disable-message-reformatting">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>{{ title }} - WhoSplit</title>
-
-    <style type="text/css">
-        * {
-            font-family: 'Poppins', sans-serif;
-        }
-        table,
-        td {
-            color: #000000;
-        }
-
-        a {
-            color: #0000ee;
-            text-decoration: underline;
-            cursor: pointer!important;
-        }
-
-        @media only screen and (min-width: 620px) {
-            .u-row {
-                width: 600px !important;
-            }
-
-            .u-row .u-col {
-                vertical-align: top;
-            }
-
-            .u-row .u-col-100 {
-                width: 600px !important;
-            }
-        }
-
-        @media (max-width: 620px) {
-            .u-row-container {
-                max-width: 100% !important;
-                padding-left: 0px !important;
-                padding-right: 0px !important;
-            }
-
-            .u-row .u-col {
-                min-width: 320px !important;
-                max-width: 100% !important;
-                display: block !important;
-            }
-
-            .u-row {
-                width: calc(100% - 40px) !important;
-            }
-
-            .u-col {
-                width: 100% !important;
-            }
-
-            .u-col>div {
-                margin: 0 auto;
-            }
-        }
-
-        body {
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        table,
-        tr,
-        td {
-            vertical-align: top;
-            border-collapse: collapse;
+        html,
+        body {
+            height: 100%;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f4f7f7;
+            color: #1e293b;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        p {
-            margin: 0;
+        .page-wrapper {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            text-align: center;
         }
 
-        .ie-container table,
-        .mso-container table {
-            table-layout: fixed;
+        .result-card {
+            width: 100%;
+            max-width: 520px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(26, 83, 92, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            border-top: 6px solid #1A535C;
+            padding: 44px 40px 36px;
         }
 
-        * {
-            line-height: inherit;
+        .result-card.status-rejected {
+            border-top-color: #c94a4a;
         }
 
-        a[x-apple-data-detectors='true'] {
-            color: inherit !important;
-            text-decoration: none !important;
+        .status-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            background-color: rgba(26, 83, 92, 0.1);
+            color: #1A535C;
+        }
+
+        .status-icon.status-approved {
+            background-color: rgba(26, 83, 92, 0.12);
+            color: #1A535C;
+        }
+
+        .status-icon.status-rejected {
+            background-color: rgba(201, 74, 74, 0.12);
+            color: #c94a4a;
+        }
+
+        .status-icon.status-info {
+            background-color: rgba(26, 83, 92, 0.1);
+            color: #1A535C;
+        }
+
+        .status-icon svg {
+            width: 36px;
+            height: 36px;
+            stroke-width: 2.2;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1A535C;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+        }
+
+        .result-card.status-rejected .title {
+            color: #991b1b;
+        }
+
+        .callout-badge {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A535C;
+            background-color: #eef5f6;
+            padding: 8px 18px;
+            border-radius: 999px;
+            margin-bottom: 22px;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .result-card.status-rejected .callout-badge {
+            color: #b91c1c;
+            background-color: #fef2f2;
+        }
+
+        .greeting {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            font-size: 16px;
+            line-height: 1.65;
+            color: #475569;
+            margin-bottom: 24px;
+            word-wrap: break-word;
+        }
+
+        .hint {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #64748b;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .brand-footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .brand-footer strong {
+            color: #1A535C;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .page-wrapper {
+                padding: 20px 14px;
+            }
+
+            .result-card {
+                padding: 36px 24px 28px;
+                border-radius: 14px;
+            }
+
+            .status-icon {
+                width: 64px;
+                height: 64px;
+                margin-bottom: 20px;
+            }
+
+            .status-icon svg {
+                width: 32px;
+                height: 32px;
+            }
+
+            .title {
+                font-size: 22px;
+            }
+
+            .greeting {
+                font-size: 16px;
+            }
+
+            .message {
+                font-size: 15px;
+            }
+
+            .callout-badge {
+                font-size: 13px;
+                padding: 7px 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .result-card {
+                padding: 28px 18px 24px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .message {
+                font-size: 14px;
+            }
         }
     </style>
-
 </head>
 
-<body class="clean-body u_body"
-    style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #f9f9f9;color: #000000">
-    <table
-        style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 320px;Margin: 0 auto;background-color: #f9f9f9;width:100%"
-        cellpadding="0" cellspacing="0">
-        <tbody>
-            <tr style="vertical-align: top">
-                <td style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
+<body>
+    <main class="page-wrapper">
+        <section class="result-card status-{{ status_type|default:'info' }}">
+            <div class="status-icon status-{{ status_type|default:'info' }}" aria-hidden="true">
+                {% if status_type == 'approved' %}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                {% elif status_type == 'rejected' %}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {% endif %}
+            </div>
 
-                    <div class="u-row-container" style="padding: 0px;background-color: transparent">
-                        <div class="u-row"
-                            style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #1A535C;">
-                            <div
-                                style="border-collapse: collapse;display: table;width: 100%;background-color: transparent;">
-                                <div class="u-col u-col-100"
-                                    style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
-                                    <div style="width: 100% !important;">
-                                        <div
-                                            style="padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;">
-                                            <table style="" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="overflow-wrap:break-word;word-break:break-word;padding:40px 10px 10px;"
-                                                            align="left">
+            <h1 class="title">{{ title }}</h1>
 
-                                                            <table width="100%" cellpadding="0" cellspacing="0"
-                                                                border="0">
-                                                                <tr>
-                                                                    <td style="padding-right: 0px;padding-left: 0px;"
-                                                                        align="center">
+            {% if callout and callout != title %}
+            <div class="callout-badge">{{ callout }}</div>
+            {% endif %}
 
-                                                                        <img align="center" border="0"
-                                                                            src="https://cdn.templates.unlayer.com/assets/1597218650916-xxxxc.png"
-                                                                            alt="Image" title="Image"
-                                                                            style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 26%;max-width: 150.8px;"
-                                                                            width="150.8" />
+            {% if creator_name %}
+            <p class="greeting">Dear {{ creator_name }},</p>
+            {% endif %}
 
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
+            <p class="message">{{ message }}</p>
 
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+            <p class="hint">You may now close this browser tab and return to WhoSplit.</p>
+        </section>
 
-                                            <table style="" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px 31px;"
-                                                            align="left">
-
-                                                            <div
-                                                                style="color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word;">
-                                                                <p style="font-size: 14px; line-height: 140%;"><span
-                                                                        style="font-size: 28px; line-height: 39.2px;"><strong><span
-                                                                                style="line-height: 39.2px; font-size: 28px;">
-                                                                                {{ title }} </span></strong>
-                                                                    </span>
-                                                                </p>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <div class="u-row-container" style="padding: 0px;background-color: transparent">
-                        <div class="u-row"
-                            style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;">
-                            <div
-                                style="border-collapse: collapse;display: table;width: 100%;background-color: transparent;">
-                                <div class="u-col u-col-100"
-                                    style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
-                                    <div style="width: 100% !important;">
-                                        <div
-                                            style="padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;">
-
-                                            <table style="" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="overflow-wrap:break-word;word-break:break-word;padding:33px 55px;"
-                                                            align="left">
-
-                                                            <div
-                                                                style="line-height: 160%; text-align: center; word-wrap: break-word;">
-                                                                {% if creator_name %}
-                                                                <p style="font-size: 14px; line-height: 160%;"><span
-                                                                        style="font-size: 22px; line-height: 35.2px;">Dear {{ creator_name }},
-                                                                    </span></p>
-                                                                {% endif %}
-                                                                <p style="font-size: 14px; line-height: 160%;">
-                                                                    <span
-                                                                        style="font-size: 18px; line-height: 28.8px;">{{ message }}
-                                                                    </span>
-                                                                </p>
-
-                                                                {% if callout %}
-                                                                <div align="center" style="font-size: 26px; font-weight: 600; color: #1A535C; padding-top: 35px; padding-bottom: 25px;">
-                                                                    {{ callout }}
-                                                                </div>
-                                                                <br />
-                                                                {% endif %}
-                                                                <p style="font-size: 14px; line-height: 160%;"><span style="font-size: 18px; line-height: 28.8px;">You may now close this browser tab and return to WhoSplit.</span></p>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <table style="" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="overflow-wrap:break-word;word-break:break-word;padding:33px 55px 60px;"
-                                                            align="left">
-
-                                                            <div
-                                                                style="line-height: 160%; text-align: center; word-wrap: break-word;">
-                                                                <p style="line-height: 160%; font-size: 14px;"><span
-                                                                        style="font-size: 18px; line-height: 28.8px;">Thanks You,</span>
-                                                                </p>
-                                                                <p style="line-height: 160%; font-size: 14px;"><span
-                                                                        style="font-size: 18px; line-height: 28.8px;">Team WhoSplit</span></p>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="u-row-container" style="padding: 0px;background-color: transparent">
-                        <div class="u-row"
-                            style="Margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #1A535C;">
-                            <div
-                                style="border-collapse: collapse;display: table;width: 100%;background-color: transparent;">
-                                <div class="u-col u-col-100"
-                                    style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
-                                    <div style="width: 100% !important;">
-                                        <div
-                                            style="padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;">
-                                            <table style="" role="presentation"
-                                                cellpadding="0" cellspacing="0" width="100%" border="0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;"
-                                                            align="left">
-
-                                                            <div
-                                                                style="color: #ffffff; line-height: 180%; text-align: center; word-wrap: break-word;">
-                                                                <p style="font-size: 14px; line-height: 180%;"><span
-                                                                        style="font-size: 16px; line-height: 28.8px;"><span>Copyright © {% now "Y" %} WhoSplit</span></span></p>
-                                                            </div>
-
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        <footer class="brand-footer">
+            Copyright &copy; {% now "Y" %} <strong>WhoSplit</strong>
+        </footer>
+    </main>
 </body>
 
 </html>

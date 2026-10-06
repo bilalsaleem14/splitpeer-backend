@@ -111,11 +111,7 @@ def send_group_join_request_email(creator, requester, group, approve_url, reject
 # Send approval or rejection notification email to the participant
 def send_group_join_response_email(member_user, creator, group, is_approved):
     try:
-        if is_approved:
-            email_subject = f"WhoSplit Join Request Approved - {group.name}"
-        else:
-            email_subject = f"WhoSplit Join Request Update - {group.name}"
-
+        email_subject = f"WhoSplit Group Join Request Update - {group.name}"
         context_obj = {"member_name": member_user.fullname, "creator_name": creator.fullname, "group_name": group.name, "is_approved": is_approved}
         send_html_email(subject=email_subject, recipient_list=[member_user.email], template_name="email_templates/group_join_response.html", context_obj=context_obj)
     except Exception as e:

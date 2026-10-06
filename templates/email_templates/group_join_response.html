@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <title>{% if is_approved %}WhoSplit Join Request Approved{% else %}WhoSplit Join Request Update{% endif %}</title>
+    <title>{% if is_approved %}WhoSplit Group Join Request Approved{% else %}WhoSplit Group Join Request Update{% endif %}</title>
 
     <style type="text/css">
         * {
@@ -167,8 +167,7 @@
                                                                 style="color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word;">
                                                                 <p style="font-size: 14px; line-height: 140%;"><span
                                                                         style="font-size: 28px; line-height: 39.2px;"><strong><span
-                                                                                style="line-height: 39.2px; font-size: 28px;">
-                                                                                {% if is_approved %}WhoSplit Join Request Approved{% else %}WhoSplit Join Request Update{% endif %} </span></strong>
+                                                                                style="line-height: 39.2px; font-size: 28px;">WhoSplit Group Join Request Update </span></strong>
                                                                     </span>
                                                                 </p>
                                                             </div>
@@ -211,18 +210,14 @@
                                                                 <p style="font-size: 14px; line-height: 160%;">
                                                                     {% if is_approved %}
                                                                     <span
-                                                                        style="font-size: 18px; line-height: 28.8px;">Good news! <strong>{{ creator_name }}</strong> has approved your request to join the group <strong>{{ group_name }}</strong> on WhoSplit.
+                                                                        style="font-size: 18px; line-height: 28.8px;"><strong>{{ creator_name }}</strong> has <strong>Approved</strong> your request to join the group <strong>{{ group_name }}</strong> on WhoSplit.
                                                                     </span>
                                                                     {% else %}
                                                                     <span
-                                                                        style="font-size: 18px; line-height: 28.8px;">We wanted to let you know that your request to join the group <strong>{{ group_name }}</strong> on WhoSplit was not approved by <strong>{{ creator_name }}</strong>.
+                                                                        style="font-size: 18px; line-height: 28.8px;">Your request to join the group <strong>{{ group_name }}</strong> on WhoSplit was <strong>Rejected</strong> by <strong>{{ creator_name }}</strong>.
                                                                     </span>
                                                                     {% endif %}
                                                                 </p>
-
-                                                                <div align="center" style="font-size: 26px; font-weight: 600; color: #1A535C; padding-top: 35px; padding-bottom: 25px;">
-                                                                    {% if is_approved %}Access Granted — {{ group_name }}{% else %}Request Declined — {{ group_name }}{% endif %}
-                                                                </div>
                                                                 <br />
                                                                 {% if is_approved %}
                                                                 <p style="font-size: 14px; line-height: 160%;"><span style="font-size: 18px; line-height: 28.8px;">You can now open the WhoSplit app to view the group information and expense splits.</span></p>

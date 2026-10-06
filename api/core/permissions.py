@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import permissions
 
+from api.groups.models import Group, GroupMember
 from api.groups.utils import is_approved_group_member
 
 
@@ -34,7 +35,19 @@ class IsOwner(permissions.BasePermission):
 
 
 class IsApprovedGroupMember(permissions.BasePermission):
-    message = {"error": "You cannot access this group until the group creator approves your join request."}
+    message = {"error": "Group admin's approval is required to join and view the group information and members. Please send a request to join the group."}
+
+    def has_permission(self, request, view):
+        group_id = request.query_params.get("group")
+        if group_id and str(group_id).isdigit():
+            group = Group.objects.prefetch_related("members").filter(pk=group_id, members__user=request.user).first()
+            if group and not is_approved_group_member(group, request.user):
+                return False
+        elif getattr(view, "action", None) in ("list", "list_dropdown") and getattr(view, "basename", None) in ("expenses", "group_members"):
+            user_memberships = GroupMember.objects.filter(user=request.user)
+            if user_memberships.exists() and not user_memberships.filter(status=GroupMember.Status.APPROVED).exists():
+                return False
+        return True
 
     def has_object_permission(self, request, view, obj):
         group = obj if hasattr(obj, "members") else getattr(obj, "group", None)
