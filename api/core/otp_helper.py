@@ -31,7 +31,7 @@ def send_html_email(subject, recipient_list, template_name, context_obj, attach_
         recipient_list = [recipient_list]
     text_template = get_template(template_name)
     template_content = text_template.render(context_obj)
-    msg = EmailMultiAlternatives(subject, subject, settings.EMAIL_HOST_USER, recipient_list)
+    msg = EmailMultiAlternatives(subject, subject, settings.DEFAULT_FROM_EMAIL, recipient_list)
     msg.attach_alternative(template_content, "text/html")
     if attach_badges:
         attach_inline_images(msg)
