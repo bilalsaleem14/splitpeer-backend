@@ -1,6 +1,14 @@
 import requests
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+
+from google.oauth2 import id_token as google_id_token
+from google.auth.transport import requests as google_requests
+
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
@@ -42,3 +50,22 @@ class CustomSocialAdapter(DefaultSocialAccountAdapter):
         
         user.save()
         return user
+
+
+class MultiClientGoogleAdapter(GoogleOAuth2Adapter):
+    def complete_login(self, request, app, token, response, **kwargs):
+        raw_id_token = (response or {}).get("id_token")
+        if not raw_id_token:
+            # access_token path: falls back to the userinfo endpoint (FETCH_USERINFO)
+            return super().complete_login(request, app, token, response, **kwargs)
+
+        try:
+            # Verifies signature, expiry and issuer against Google's certs
+            idinfo = google_id_token.verify_oauth2_token(raw_id_token, google_requests.Request(), audience=None)
+        except ValueError as e:
+            raise OAuth2Error(f"Invalid id_token: {e}") from e
+
+        if idinfo.get("aud") not in settings.GOOGLE_CLIENT_IDS:
+            raise OAuth2Error("Invalid id_token audience")
+
+        return self.get_provider().sociallogin_from_response(request, idinfo)
