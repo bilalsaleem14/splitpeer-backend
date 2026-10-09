@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db.models import Sum, Q, F, DecimalField, ExpressionWrapper
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from rest_framework import serializers
 
@@ -30,10 +31,11 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     has_unread_activities = serializers.SerializerMethodField()
     is_social = serializers.SerializerMethodField()
+    content_visibility = serializers.BooleanField(default=settings.CONTENT_VISIBILITY)
 
     class Meta:
         model = User
-        fields = ["id", "email", "fullname", "profile_picture", "is_darkmode", "is_cloud_sync", "has_unread_activities", "is_social"]
+        fields = ["id", "email", "fullname", "profile_picture", "is_darkmode", "is_cloud_sync", "has_unread_activities", "is_social", "content_visibility"]
     
     def get_has_unread_activities(self, obj):
         has_unread = obj.received_notifications.all().filter(is_read=False).exists()
